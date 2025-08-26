@@ -1,0 +1,150 @@
+name: xmake on multiple platforms
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  PC-build:
+    runs-on: [self-hosted, "${{ matrix.os }}"]
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [Linux, Windows]
+        build_type: [Release]
+        c_compiler: [gcc, clang, cl]
+        include:
+          - os: windows
+            c_compiler: cl
+            cpp_compiler: cl
+            label: windows c1
+          - os: linux
+            c_compiler: gcc
+            cpp_compiler: g++
+            label: ubuntu g++
+          - os: linux
+            c_compiler: clang
+            cpp_compiler: clang++
+            label: ubuntu clang
+        exclude:
+          - os: windows
+            c_compiler: gcc
+          - os: windows
+            c_compiler: clang
+          - os: linux
+            c_compiler: cl
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install Ubuntu Dependencies
+      if: runner.os == 'Linux'
+      run: sudo apt-get update && sudo apt-get install -y libasound2-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev libwayland-dev libxkbcommon-dev
+
+    - name: Set reusable strings
+      id: strings-PC
+      shell: bash
+      run: |
+        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+    # ensure repo-root xmake is usable on Linux
+    - name: Make repo xmake executable (Linux)
+      if: runner.os == 'Linux'
+      run: |
+        chmod +x "${{ github.workspace }}/xmake"
+
+    # Configure xmake (Linux)
+    - name: Configure xmake (Linux)
+      if: runner.os == 'Linux'
+      run: |
+        # use xmake in repo root
+        "${{ github.workspace }}/xmake" f -m release
+
+    - name: Configure xmake (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        # call xmake.exe from repo root
+        "${{ github.workspace }}\\xmake.exe" f -m release
+
+    - name: Build (Linux)
+      if: runner.os == 'Linux'
+      run: |
+        "${{ github.workspace }}/xmake" -v
+
+    - name: Build (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        "${{ github.workspace }}\\xmake.exe" -v
+
+    - name: Test (Linux)
+      if: runner.os == 'Linux'
+      run: |
+        # try to run a 'test' target if present
+        if "${{ github.workspace }}/xmake" show -v targets | grep -q "^test$"; then
+          "${{ github.workspace }}/xmake" run test
+        else
+          echo "No explicit 'test' target defined in xmake.lua — skipping."
+        fi
+
+    - name: Test (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        $targets = & "${{ github.workspace }}\\xmake.exe" show -v targets
+        if ($targets -match "^test$") {
+          & "${{ github.workspace }}\\xmake.exe" run test
+        } else {
+          Write-Host "No explicit 'test' target defined in xmake.lua — skipping."
+        }
+
+  Android-build:
+    runs-on: [self-hosted, Linux]
+    strategy:
+      fail-fast: false
+      matrix:
+        triplet: [arm64-android]
+
+    env:
+      buildDir: '${{ github.workspace }}/build'
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+
+    - name: Install Ubuntu Dependencies
+      run: sudo apt-get update && sudo apt-get install -y ninja-build unzip curl tar pkg-config git
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+
+    - name: Setup Android NDK
+      uses: nttld/setup-ndk@v1
+      id: setup-ndk
+      with:
+        ndk-version: r21d
+        add-to-path: false
+
+    - name: Export NDK path
+      run: echo "ANDROID_NDK_HOME=${{ steps.setup-ndk.outputs.ndk-path }}" >> $GITHUB_ENV
+
+    # Use repo-root xmake for Android (no install)
+    - name: Make repo xmake executable (Android job)
+      run: chmod +x "${{ github.workspace }}/xmake"
+
+    - name: Configure xmake for Android
+      run: |
+        # configure xmake using the NDK in $ANDROID_NDK_HOME
+        "${{ github.workspace }}/xmake" f -p android --ndk="$ANDROID_NDK_HOME" -m release
+
+    - name: Build Android Project
+      run: |
+        "${{ github.workspace }}/xmake" -v
