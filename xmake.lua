@@ -9,11 +9,6 @@ set_languages("c++17")
 includes("Libraries/raylib") 
 add_requires("enet6", {system=false})
 
-if is_plat("android") then
-    set_arch("arm64-v8a")
-end
-
-
 -- App info
 APP_NAME       = "CatFishers"
 APP_PACKAGE    = "com.raylib.catfishers"
@@ -29,6 +24,10 @@ BUILD_DIR      = "build_android"
 LIB_CLIENT     = path.join(JNI_LIBS_DIR, "$(TARGET_ARCH_ABI)/libmain.so")
 LIB_RAYLIB     = path.join(JNI_LIBS_DIR, "$(TARGET_ARCH_ABI)/libraylib.so")
 
+
+if is_plat("android") then
+    set_arch("arm64-v8a")
+end
 
 -- --------------------
 -- Subdirectories
@@ -304,14 +303,14 @@ task("deploy")
         os.exec("xmake package_apk")
         
         print(">>> Running adb commands")
-        print("\nUninstalling old apk:")
-        local check_cmd = "adb shell pm list packages " .. app_package
-        local present = true
-        local ok = os.iorun(check_cmd)
-        print(ok)
-
-        if not ok then
-            present = false
+        print(">>> Checking if package is installed: " .. app_package)
+        local list_out = os.iorun("adb shell pm list packages " .. app_package) or ""
+        local present = false
+        if list_out:match(app_package) then
+            present = true
+            print(">>> Package present on device.")
+        else
+            print(">>> Package not installed on device.")
         end
 
         if present then

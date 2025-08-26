@@ -43,7 +43,7 @@ target("raylib")
         add_includedirs("external/glfw/include", {public = true})
     end
 
-    if not is_plat("linux") then
+    if is_plat("windows") then
         add_includedirs("external", {public = true})
     end
 
@@ -147,7 +147,7 @@ target("raylib")
         after_build(function (target)
             import("core.project.config")
             -- detect ABI: prefer xmake-provided env var, fallback to common abi
-            local abi = config.get("arch") or "arm64-v8a"
+            local abi = target:arch() or "arm64-v8a"
 
             -- path where xmake places the built shared lib
             local built_path = path.join(os.projectdir(), "build", "android", abi, "release", "libraylib.so")

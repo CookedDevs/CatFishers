@@ -34,11 +34,9 @@ target("Client")
     elseif is_plat("android") then
         add_syslinks("m", "log", "android")
         after_build(function (target)
-
             import("core.project.config")
             -- detect ABI: prefer xmake-provided env var, fallback to common abi
-            local abi = os.getenv("XMAKE_TARGET_ARCH_ABI") or "arm64-v8a"
-                
+            local abi = target:arch() or "arm64-v8a"
             -- path where xmake places the built shared lib
             local built_path = path.join(os.projectdir(), "build", "android", abi, config.get("mode"), "libmain.so")
                 
