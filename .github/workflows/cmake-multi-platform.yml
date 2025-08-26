@@ -54,14 +54,14 @@ jobs:
     - name: Make repo xmake executable (Linux)
       if: runner.os == 'Linux'
       run: |
-        chmod +x "${{ github.workspace }}/xmake"
+        chmod +x "${{ github.workspace }}/xmake.x86_64"
 
     # Configure xmake (Linux)
     - name: Configure xmake (Linux)
       if: runner.os == 'Linux'
       run: |
         # use xmake in repo root
-        "${{ github.workspace }}/xmake" f -m release
+        "${{ github.workspace }}/xmake.x86_64" f -m release
 
     - name: Configure xmake (Windows)
       if: runner.os == 'Windows'
@@ -72,7 +72,7 @@ jobs:
     - name: Build (Linux)
       if: runner.os == 'Linux'
       run: |
-        "${{ github.workspace }}/xmake" -v
+        "${{ github.workspace }}/xmake.x86_64" -v
 
     - name: Build (Windows)
       if: runner.os == 'Windows'
@@ -83,8 +83,8 @@ jobs:
       if: runner.os == 'Linux'
       run: |
         # try to run a 'test' target if present
-        if "${{ github.workspace }}/xmake" show -v targets | grep -q "^test$"; then
-          "${{ github.workspace }}/xmake" run test
+        if "${{ github.workspace }}/xmake.x86_64" show -v targets | grep -q "^test$"; then
+          "${{ github.workspace }}/xmake.x86_64" run test
         else
           echo "No explicit 'test' target defined in xmake.lua — skipping."
         fi
@@ -138,13 +138,13 @@ jobs:
 
     # Use repo-root xmake for Android (no install)
     - name: Make repo xmake executable (Android job)
-      run: chmod +x "${{ github.workspace }}/xmake"
+      run: chmod +x "${{ github.workspace }}/xmake.x86_64"
 
     - name: Configure xmake for Android
       run: |
         # configure xmake using the NDK in $ANDROID_NDK_HOME
-        "${{ github.workspace }}/xmake" f -p android --ndk="$ANDROID_NDK_HOME" -m release
+        "${{ github.workspace }}/xmake.x86_64" f -p android --ndk="$ANDROID_NDK_HOME" -m release
 
     - name: Build Android Project
       run: |
-        "${{ github.workspace }}/xmake" -v
+        "${{ github.workspace }}/xmake.x86_64" -v
