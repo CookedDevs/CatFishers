@@ -61,23 +61,23 @@ jobs:
       if: runner.os == 'Linux'
       run: |
         # use xmake in repo root
-        "${{ github.workspace }}/xmake.x86_64" f -m release
+        "${{ github.workspace }}/xmake.x86_64" f -m release -y
 
     - name: Configure xmake (Windows)
       if: runner.os == 'Windows'
       run: |
         # call xmake.exe from repo root
-        "${{ github.workspace }}\\xmake.exe" f -m release
+        "${{ github.workspace }}\\xmake.exe" f -m release -y
 
     - name: Build (Linux)
       if: runner.os == 'Linux'
       run: |
-        "${{ github.workspace }}/xmake.x86_64" -v
+        "${{ github.workspace }}/xmake.x86_64" -v -y
 
     - name: Build (Windows)
       if: runner.os == 'Windows'
       run: |
-        "${{ github.workspace }}\\xmake.exe" -v
+        "${{ github.workspace }}\\xmake.exe" -v -y
 
     - name: Test (Linux)
       if: runner.os == 'Linux'
