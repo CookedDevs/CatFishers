@@ -48,7 +48,7 @@ jobs:
       if: runner.os == 'Windows'
       run: |
         # call xmake.exe from repo root
-        "${{ github.workspace }}\\xmake.exe" f -m release -y
+        ${{ github.workspace }}\\xmake.exe f -m release -y
 
     - name: Build (Linux)
       if: runner.os == 'Linux'
@@ -58,7 +58,7 @@ jobs:
     - name: Build (Windows)
       if: runner.os == 'Windows'
       run: |
-        "${{ github.workspace }}\\xmake.exe" -v -y
+        ${{ github.workspace }}\\xmake.exe -v -y
 
     - name: Test (Linux)
       if: runner.os == 'Linux'
@@ -73,9 +73,9 @@ jobs:
     - name: Test (Windows)
       if: runner.os == 'Windows'
       run: |
-        $targets = & "${{ github.workspace }}\\xmake.exe" show -v targets
+        $targets = & ${{ github.workspace }}\\xmake.exe show -v targets
         if ($targets -match "^test$") {
-          & "${{ github.workspace }}\\xmake.exe" run test
+          & ${{ github.workspace }}\\xmake.exe run test
         } else {
           Write-Host "No explicit 'test' target defined in xmake.lua — skipping."
         }
