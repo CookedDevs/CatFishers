@@ -63,22 +63,12 @@ jobs:
     - name: Test (Linux)
       if: runner.os == 'Linux'
       run: |
-        # try to run a 'test' target if present
-        if "${{ github.workspace }}/xmake.x86_64" show -v targets | grep -q "^test$"; then
-          "${{ github.workspace }}/xmake.x86_64" run test
-        else
-          echo "No explicit 'test' target defined in xmake.lua — skipping."
-        fi
+        "${{ github.workspace }}/xmake.x86_64" test
 
     - name: Test (Windows)
       if: runner.os == 'Windows'
       run: |
-        $targets = & ${{ github.workspace }}\\xmake.exe show -v targets
-        if ($targets -match "^test$") {
-          & ${{ github.workspace }}\\xmake.exe run test
-        } else {
-          Write-Host "No explicit 'test' target defined in xmake.lua — skipping."
-        }
+        ${{ github.workspace }}\\xmake.exe test
 
   Android-build:
     runs-on: [self-hosted, Linux]
