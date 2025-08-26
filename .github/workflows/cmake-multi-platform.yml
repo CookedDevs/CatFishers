@@ -45,23 +45,32 @@ jobs:
       run: sudo apt-get update && sudo apt-get install -y libasound2-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev libwayland-dev libxkbcommon-dev
 
     - name: Set reusable strings
-      id: strings-PC
+      id: strings-PC-linux
+      if: runner.os == 'Linux'
       shell: bash
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
-    # ensure repo-root xmake is usable on Linux
-    - name: Make repo xmake executable (Linux)
-      if: runner.os == 'Linux'
+    - name: Set reusable strings
+      id: strings-PC-windows
+      if: runner.os == 'Windows'
+      shell: pwsh
       run: |
-        chmod +x "${{ github.workspace }}/xmake.x86_64"
+        $out = "build-output-dir=${{ github.workspace }}\build"
+        Add-Content -Path $env:GITHUB_OUTPUT -Value $out
 
-    # Configure xmake (Linux)
-    - name: Configure xmake (Linux)
-      if: runner.os == 'Linux'
-      run: |
-        # use xmake in repo root
-        "${{ github.workspace }}/xmake.x86_64" f -m release -y
+        # ensure repo-root xmake is usable on Linux
+        - name: Make repo xmake executable (Linux)
+          if: runner.os == 'Linux'
+          run: |
+            chmod +x "${{ github.workspace }}/xmake.x86_64"
+
+        # Configure xmake (Linux)
+        - name: Configure xmake (Linux)
+          if: runner.os == 'Linux'
+          run: |
+            # use xmake in repo root
+            "${{ github.workspace }}/xmake.x86_64" f -m release -y
 
     - name: Configure xmake (Windows)
       if: runner.os == 'Windows'
@@ -143,8 +152,8 @@ jobs:
     - name: Configure xmake for Android
       run: |
         # configure xmake using the NDK in $ANDROID_NDK_HOME
-        "${{ github.workspace }}/xmake.x86_64" f -p android --ndk="$ANDROID_NDK_HOME" -m release
+        "${{ github.workspace }}/xmake.x86_64" f -p android --ndk="$ANDROID_NDK_HOME" -m release -y
 
     - name: Build Android Project
       run: |
-        "${{ github.workspace }}/xmake.x86_64" -v
+        "${{ github.workspace }}/xmake.x86_64" -v -y
