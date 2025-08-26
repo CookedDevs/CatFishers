@@ -40,8 +40,11 @@ target("raylib")
     
     if not is_plat("android") then
         table.insert(src_files, "rglfw.c")
-        add_includedirs("external", {public = true})
         add_includedirs("external/glfw/include", {public = true})
+    end
+
+    if not is_plat("linux") then
+        add_includedirs("external", {public = true})
     end
 
     add_files(src_files)
@@ -73,6 +76,7 @@ target("raylib")
         add_syslinks("winmm", "gdi32", "user32", "kernel32", "shell32", "opengl32")
     elseif is_plat("linux") then
         add_syslinks("pthread", "dl", "m")
+        add_defines("PLATFORM_DESKTOP_GLFW","_GLFW_X11","PLATFORM_LINUX", "__linux__", "GLFW_ENABLE_X11")
         add_ldflags("-Wl,--as-needed")
     elseif is_plat("macosx") or is_plat("iphoneos") then
         add_frameworks("Cocoa", "OpenGL", "CoreAudio")
