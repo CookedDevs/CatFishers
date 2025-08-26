@@ -44,34 +44,6 @@ jobs:
       if: runner.os == 'Linux'
       run: sudo apt-get update && sudo apt-get install -y libasound2-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev libwayland-dev libxkbcommon-dev
 
-    - name: Set reusable strings
-      id: strings-PC-linux
-      if: runner.os == 'Linux'
-      shell: bash
-      run: |
-        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
-
-    - name: Set reusable strings
-      id: strings-PC-windows
-      if: runner.os == 'Windows'
-      shell: pwsh
-      run: |
-        $out = "build-output-dir=${{ github.workspace }}\build"
-        Add-Content -Path $env:GITHUB_OUTPUT -Value $out
-
-        # ensure repo-root xmake is usable on Linux
-        - name: Make repo xmake executable (Linux)
-          if: runner.os == 'Linux'
-          run: |
-            chmod +x "${{ github.workspace }}/xmake.x86_64"
-
-        # Configure xmake (Linux)
-        - name: Configure xmake (Linux)
-          if: runner.os == 'Linux'
-          run: |
-            # use xmake in repo root
-            "${{ github.workspace }}/xmake.x86_64" f -m release -y
-
     - name: Configure xmake (Windows)
       if: runner.os == 'Windows'
       run: |
