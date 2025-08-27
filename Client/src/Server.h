@@ -13,6 +13,9 @@
 	#undef far
 #endif
 
+#include <iostream>
+#include <string>
+
 class Server
 {
 public:
@@ -27,7 +30,6 @@ private:
 	ENetPeer* serverPeer;
 	ENetEvent event;
 	int eventStatus;
-	char message[1024];
 	char addressBuffer[ENET_ADDRESS_MAX_LENGTH];
 	int running = 1;
 };

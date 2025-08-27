@@ -1,5 +1,4 @@
 #include "Server.h"
-#include <iostream>
 
 Server::Server()
 {
@@ -56,7 +55,7 @@ bool Server::Run()
             break;
 
         case ENET_EVENT_TYPE_RECEIVE:
-            std::cout << "(Client) Message from server: " << event.packet->data << "";
+            std::cout << "(Client) Message from server: " << event.packet->data << "\n";
             enet_packet_destroy(event.packet);
             break;
 
@@ -71,22 +70,27 @@ bool Server::Run()
     }
     else if (serverPeer->state == ENET_PEER_STATE_CONNECTED)
     {
-        /* Prompt some message to send to the server, be quick to prevent timeout (TODO: Read asynchronously) */
         std::cout << "> ";
-        fgets(message, sizeof(message), stdin);
 
-        if (strlen(message) > 0 && strcmp(message, "\n") != 0)
-        {
-            /* Build a packet passing our bytes, length and flags (reliable means this packet will be resent if lost) */
-            ENetPacket* packet = enet_packet_create(message, strlen(message) + 1, ENET_PACKET_FLAG_RELIABLE);
-            /* Send the packet to the server on channel 0 */
-            enet_peer_send(serverPeer, 0, packet);
-        }
-        else
+        std::string line;
+        if (!std::getline(std::cin, line))
         {
             running = 0;
             enet_peer_disconnect_now(serverPeer, 0);
             std::cout << "\nDisconnected from server\n";
+        }
+        else if (!line.empty()) // user typed something (not just Enter)
+        {
+            if (line == "exit" || line == "quit")
+            {
+                running = 0;
+                enet_peer_disconnect_now(serverPeer, 0);
+                std::cout << "\nDisconnected from server\n";
+            }
+
+            ENetPacket* packet = enet_packet_create(line.c_str(), line.size() + 1, ENET_PACKET_FLAG_RELIABLE);
+            enet_peer_send(serverPeer, 0, packet);
+            // optionally: enet_host_flush(clientHost);
         }
     }
 }

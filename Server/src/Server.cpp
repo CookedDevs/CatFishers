@@ -57,7 +57,7 @@ bool Server::Run()
         }
     
         case ENET_EVENT_TYPE_RECEIVE:
-            std::cout << "(Server) Message from client : " << event.packet->data << "";
+            std::cout << "(Server) Message from client : " << event.packet->data << "\n";
             enet_host_broadcast(serverHost, 0, event.packet);
             break;
     
