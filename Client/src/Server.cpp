@@ -93,4 +93,6 @@ bool Server::Run()
             // optionally: enet_host_flush(clientHost);
         }
     }
+
+    return true;
 }
