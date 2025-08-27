@@ -1,5 +1,5 @@
 #include <iostream>
-#include <enet6/enet.h>
+#include "Server.h"
 
 int main()
 {
