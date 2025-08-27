@@ -24,5 +24,9 @@ if is_plat("android") then
     add_ldflags("-fPIC")
 end
 
+if is_plat("windows") then
+    set_group("External")
+end
+
 -- Include the actual library build script
 includes("src")

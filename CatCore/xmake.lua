@@ -11,8 +11,3 @@ target("CatCore")
 
     -- Dependencies
     add_packages("raylib", "enet6")
-
-    -- Optional: source groups for IDEs (Xmake preserves folder structure automatically)
-    if is_plat("windows") then
-        set_group("CatCore")  -- top-level group in Visual Studio
-    end

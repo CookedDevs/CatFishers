@@ -1,13 +1,16 @@
 -- xmake.lua for CatFishers
-set_project("CatFishers")
-set_languages("c++17")
-
 -- --------------------
 -- Dependencies
 -- --------------------
 
 includes("Libraries/raylib") 
 add_requires("enet6", {system=false})
+
+
+-- Set project
+
+set_project("CatFishers")
+set_languages("c++17")
 
 -- App info
 APP_NAME       = "CatFishers"
