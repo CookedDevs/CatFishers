@@ -9,6 +9,8 @@
 
 int main()
 {
+    Server server;
+
     // Initialization
     //--------------------------------------------------------------------------------------
     const int screenWidth = 800;
@@ -50,6 +52,8 @@ int main()
     // Main game loop
     while (!WindowShouldClose())        // Detect window close button or ESC key
     {
+        server.Run();
+
         // Update
         //----------------------------------------------------------------------------------
         // Player movement

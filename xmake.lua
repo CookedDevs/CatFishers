@@ -1,4 +1,5 @@
 -- xmake.lua for CatFishers
+add_rules("mode.debug", "mode.release")
 -- --------------------
 -- Dependencies
 -- --------------------

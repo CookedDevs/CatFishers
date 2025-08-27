@@ -19,7 +19,13 @@ public:
 	Server();
 	~Server();
 
-private:
+	bool Run();
 
+private:
+	ENetAddress address;
+	ENetHost* serverHost;
+	ENetEvent event;
+	int eventStatus;
+	char addressBuffer[ENET_ADDRESS_MAX_LENGTH];
 };
 
