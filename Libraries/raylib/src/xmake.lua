@@ -33,7 +33,6 @@ target("raylib")
 
     set_languages("c11")
 
-    -- Public headers (adjust if your headers live elsewhere)
     add_headerfiles("*.h")
 
     local src_files = {"raudio.c", "rmodels.c", "rshapes.c", "rtext.c", "rtextures.c", "utils.c", "rcore.c"}
@@ -52,10 +51,7 @@ target("raylib")
     -- Public include dir so consumers can #include <raylib.h>
     add_includedirs(".", {public = true})
 
-    
-    
 
-    -- Add PIC if building shared or if top-level config requested PIC
     local pic_cfg = get_config("pic")
     local want_pic = false
     if pic_cfg then

@@ -8,11 +8,10 @@ target("Server")
 
     -- Include directories
     add_includedirs("src", {public=false})
-    --add_includedirs("CatCore/include", {public=false})  -- adjust if CatCore headers are elsewhere
 
     -- Dependencies
     add_deps("CatCore")
-    add_packages("raylib", "enet6")
+    add_packages("CatCore", "raylib", "enet6")
 
     -- Android system libraries if needed
     if is_plat("windows") then
