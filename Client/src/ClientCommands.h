@@ -17,9 +17,10 @@ struct Command
 class ClientCommands
 {
 public:
-	static std::vector<std::string> GetCommandInfo();
+	static void AddServerCommands(std::string commandData);
 	static void InitializeCommands();
-	static void HandleCommand(const std::string command); // Sender nullptr until Player class or if nullptr its server
+	static void ClearServerCommands();
+	static bool HandleCommand(const std::string command); // Sender nullptr until Player class or if nullptr its server
 private:
 	static inline std::vector<Command> commands;
 	static inline std::vector<Command> serverCommands;

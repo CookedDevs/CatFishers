@@ -35,6 +35,7 @@ namespace CatCore
 	enum ServerReceiveType
 	{
 		Message = 1,
-		Data = 2,
+		CommandData = 2,
+		Data = 3,
 	};
 }

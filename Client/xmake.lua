@@ -21,7 +21,7 @@ target("Client")
     end
 
     -- Dependenciess
-    add_packages("enet6")
+    add_packages("enet6", "nlohmann_json")
     add_deps("CatCore", "raylib")
 
     if is_plat("windows") then

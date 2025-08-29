@@ -2,13 +2,26 @@
 #include "Server.h"
 
 #include <sstream>
+#include <nlohmann/json.hpp>
 
-std::vector<std::string> ServerCommands::GetCommandInfo()
+void ServerCommands::SendCommandInfo(ENetPeer* receiver)
 {
-	return {};
+	nlohmann::json json;
+	nlohmann::json cmds;
+
+	for (Command command : commands)
+	{
+		nlohmann::json com;
+		com["names"] = command.names;
+		com["description"] = command.description;
+		cmds[command.names[0]] = com;
+	}
+
+	json["commands"] = cmds;
+	Server::SendCommandData(receiver, json.dump());
 }
 
-void ServerCommands::HandleCommand(const std::string commandString, ENetPeer* sender)
+bool ServerCommands::HandleCommand(const std::string commandString, ENetPeer* sender)
 {
 	std::vector<std::string> arguments;
 
@@ -31,11 +44,12 @@ void ServerCommands::HandleCommand(const std::string commandString, ENetPeer* se
 			if (name == arguments[0])
 			{
 				command.runCommand(sender, arguments);
-				return;
+				return true;
 			}
 	}
 
 	Server::SendMessage(sender, std::string("Could not find command : " + arguments[0]));
+	return false;
 }
 
 void ServerCommands::InitializeCommands()
@@ -52,6 +66,8 @@ void ServerCommands::InitializeCommands()
 			return true;
 	};
 	commands.push_back(test);
+
+
 
 	// Naming command needed to play the game command
 	Command name;

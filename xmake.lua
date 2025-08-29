@@ -6,6 +6,7 @@ add_rules("mode.debug", "mode.release")
 
 includes("Libraries/raylib") 
 add_requires("enet6", {system=false})
+add_requires("nlohmann_json")
 
 
 -- Set project

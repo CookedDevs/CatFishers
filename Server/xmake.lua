@@ -11,7 +11,7 @@ target("Server")
 
     -- Dependencies
     add_deps("CatCore")
-    add_packages("CatCore", "raylib", "enet6")
+    add_packages("CatCore", "raylib", "enet6", "nlohmann_json")
 
     -- Android system libraries if needed
     if is_plat("windows") then

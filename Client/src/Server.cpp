@@ -2,8 +2,12 @@
 #include "Commands.h"
 #include "Player.h"
 
+#include "ClientCommands.h"
+
 Server::Server()
 {
+    ClientCommands::InitializeCommands();
+
     /* Initialize enet6 */
     if (enet_initialize() != 0)
     {
@@ -57,12 +61,27 @@ bool Server::Run()
             break;
 
         case ENET_EVENT_TYPE_RECEIVE:
-            std::cout << event.packet->data << "\n";
-            enet_packet_destroy(event.packet);
+            if (event.packet->data[0] == CatCore::ServerReceiveType::Message)
+            {
+                std::cout << event.packet->data << "\n";
+                enet_packet_destroy(event.packet);
+            }
+            else if (event.packet->data[0] == CatCore::ServerReceiveType::CommandData)
+            {
+                std::string recv = (const char*)event.packet->data;
+                recv.erase(0, 1);
+                ClientCommands::AddServerCommands(recv);
+            }
+            else if (event.packet->data[0] == CatCore::ServerReceiveType::Data)
+            {
+
+            }
+
             break;
 
         case ENET_EVENT_TYPE_DISCONNECT:
             std::cout << "Disconnected from server!\n";
+            ClientCommands::ClearServerCommands();
             return EXIT_SUCCESS;
 
         case ENET_EVENT_TYPE_DISCONNECT_TIMEOUT:
@@ -77,28 +96,26 @@ bool Server::Run()
         char sendType = CatCore::ServerReceiveType::Message;
 
         std::string line;
-        if (!std::getline(std::cin, line))
-        {
-            running = 0;
-            enet_peer_disconnect_now(serverPeer, 0);
-            std::cout << "\nDisconnected from server!\n";
-        }
-        else if (!line.empty()) // user typed something (not just Enter)
+        std::getline(std::cin, line);
+        if (!line.empty()) // user typed something (not just Enter)
         {
             std::string send;
 
-            if (line == "exit" || line == "quit")
+            if (line[0] == '!' && ClientCommands::HandleCommand(line)) {}
+            else if (line == "exit" || line == "quit")
             {
                 running = 0;
                 enet_peer_disconnect_now(serverPeer, 0);
                 std::cout << "\nDisconnected from server!\n";
             }
+            else
+            {
+                send.push_back(sendType);
+                send += line;
 
-            send.push_back(sendType);
-            send += line;
-
-            ENetPacket* packet = enet_packet_create(send.c_str(), send.size() + 1, ENET_PACKET_FLAG_RELIABLE);
-            enet_peer_send(serverPeer, 0, packet);
+                ENetPacket* packet = enet_packet_create(send.c_str(), send.size() + 1, ENET_PACKET_FLAG_RELIABLE);
+                enet_peer_send(serverPeer, 0, packet);
+            }
         }
     }
 }

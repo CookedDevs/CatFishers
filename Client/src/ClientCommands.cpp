@@ -2,13 +2,28 @@
 #include "Server.h"
 
 #include <sstream>
+#include <fstream>
+#include <nlohmann/json.hpp>
 
-std::vector<std::string> ClientCommands::GetCommandInfo()
+void ClientCommands::AddServerCommands(std::string commandData)
 {
-	return {};
+	nlohmann::json json = nlohmann::json::parse(commandData);
+
+	for (nlohmann::json com : json["commands"])
+	{
+		Command command;
+		command.names = com["names"].get<std::vector<std::string>>();
+		command.description = com["description"].get<std::string>();
+		serverCommands.push_back(command);
+	}
 }
 
-void ClientCommands::HandleCommand(const std::string commandString)
+void ClientCommands::ClearServerCommands()
+{
+	commands.clear();
+}
+
+bool ClientCommands::HandleCommand(const std::string commandString)
 {
 	std::vector<std::string> arguments;
 
@@ -31,29 +46,46 @@ void ClientCommands::HandleCommand(const std::string commandString)
 			if (name == arguments[0])
 			{
 				command.runCommand(arguments);
-				return;
+				return true;
 			}
 	}
+
+	return false;
 }
 
 void ClientCommands::InitializeCommands()
 {
 	// Help command
-	Command test;
-	test.names = { "help", "h" };
-	test.description = { "Prints description of all commands" };
-	test.runCommand = [](std::vector<std::string> args) -> bool
+	Command help;
+	help.names = { "help", "h" };
+	help.description = { "Prints description of all commands" };
+	help.runCommand = [](std::vector<std::string> args) -> bool
 	{
+		std::cout << "Client commands :" << "\n";
+
 		for (Command command : commands)
 		{
 			for (auto name : command.names)
 			{
-				std::cout << name << ", ";
+				std::cout << "\t" << name << ", ";
 			}
 
 			std::cout << "\t\t" << command.description << "\n";
 		}
+
+		std::cout << "Server commands :" << "\n";
+
+		for (Command command : serverCommands)
+		{
+			for (auto name : command.names)
+			{
+				std::cout << "\t" << name << ", ";
+			}
+
+			std::cout << "\t\t" << command.description << "\n";
+		}
+
 		return true;
 	};
-	commands.push_back(test);
+	commands.push_back(help);
 }

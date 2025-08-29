@@ -26,6 +26,8 @@ public:
 	static void Close();
 
 	static void SendMessage(ENetPeer* receiver, const std::string message);
+	static void SendData(ENetPeer* receiver, const std::string message);
+	static void SendCommandData(ENetPeer* receiver, const std::string message);
 	static void BroadcastMessage(const std::string message);
 	static void BroadcastExludeMessage(ENetPeer* excludedReseiver, const std::string message);
 

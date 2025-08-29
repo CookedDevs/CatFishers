@@ -59,6 +59,7 @@ bool Server::Run()
             enet_address_get_host_ip(&event.peer->address, addressBuffer, ENET_ADDRESS_MAX_LENGTH);
             std::cout << "New connection : " << addressBuffer << "\n";
             AddPlayer(CatCore::Player(), event.peer->connectID);
+            ServerCommands::SendCommandInfo(event.peer);
 
             break;
         }
@@ -103,17 +104,55 @@ bool Server::Run()
 
 void Server::SendMessage(ENetPeer* receiver, const std::string message)
 {
-    ENetPacket* packet = enet_packet_create(message.c_str(), message.size() + 1, ENET_PACKET_FLAG_RELIABLE);
+    char sendType = CatCore::ServerReceiveType::Message;
+    std::string send;
+    send.push_back(sendType);
+    send += message;
+
+    ENetPacket* packet = enet_packet_create(send.c_str(), send.size() + 1, ENET_PACKET_FLAG_RELIABLE);
     enet_peer_send(receiver, 0, packet);
 }
+
+void Server::SendData(ENetPeer* receiver, const std::string message)
+{
+    char sendType = CatCore::ServerReceiveType::Data;
+    std::string send;
+    send.push_back(sendType);
+    send += message;
+
+    ENetPacket* packet = enet_packet_create(send.c_str(), send.size() + 1, ENET_PACKET_FLAG_RELIABLE);
+    enet_peer_send(receiver, 0, packet);
+}
+
+void Server::SendCommandData(ENetPeer* receiver, const std::string message)
+{
+    char sendType = CatCore::ServerReceiveType::CommandData;
+    std::string send;
+    send.push_back(sendType);
+    send += message;
+
+    ENetPacket* packet = enet_packet_create(send.c_str(), send.size() + 1, ENET_PACKET_FLAG_RELIABLE);
+    enet_peer_send(receiver, 0, packet);
+}
+
 void Server::BroadcastMessage(const std::string message)
 {
-    ENetPacket* packet = enet_packet_create(message.c_str(), message.size() + 1, ENET_PACKET_FLAG_RELIABLE);
+    char sendType = CatCore::ServerReceiveType::Message;
+    std::string send;
+    send.push_back(sendType);
+    send += message;
+
+    ENetPacket* packet = enet_packet_create(send.c_str(), send.size() + 1, ENET_PACKET_FLAG_RELIABLE);
     enet_host_broadcast(serverHost, 0, packet);
 }
 
 void Server::BroadcastExludeMessage(ENetPeer* excludedReseiver, const std::string message)
 {
-    ENetPacket* packet = enet_packet_create(message.c_str(), message.size() + 1, ENET_PACKET_FLAG_RELIABLE);
+    char sendType = CatCore::ServerReceiveType::Message;
+    std::string send;
+    send.push_back(sendType);
+    send += message;
+
+    ENetPacket* packet = enet_packet_create(send.c_str(), send.size() + 1, ENET_PACKET_FLAG_RELIABLE);
     enet_host_broadcast(serverHost, 0, packet);
 }

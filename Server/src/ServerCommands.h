@@ -16,9 +16,9 @@ struct Command
 class ServerCommands
 {
 public:
-	static std::vector<std::string> GetCommandInfo();
+	static void SendCommandInfo(ENetPeer* receiver);
 	static void InitializeCommands();
-	static void HandleCommand(const std::string command, ENetPeer* sender); // Sender nullptr until Player class or if nullptr its server
+	static bool HandleCommand(const std::string command, ENetPeer* sender); // Sender nullptr until Player class or if nullptr its server
 private:
 	static inline std::vector<Command> commands;
 };
