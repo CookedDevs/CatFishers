@@ -118,4 +118,6 @@ bool Server::Run()
             }
         }
     }
+
+    return true;
 }
