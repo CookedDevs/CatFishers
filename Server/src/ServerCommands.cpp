@@ -18,7 +18,7 @@ void ServerCommands::SendCommandInfo(ENetPeer* receiver)
 	}
 
 	json["commands"] = cmds;
-	Server::SendCommandData(receiver, json.dump());
+	CatCore::ServerUtils::SendCommandData(receiver, json.dump());
 }
 
 bool ServerCommands::HandleCommand(const std::string commandString, ENetPeer* sender)
@@ -48,19 +48,18 @@ bool ServerCommands::HandleCommand(const std::string commandString, ENetPeer* se
 			}
 	}
 
-	Server::SendMessage(sender, std::string("Could not find command : " + arguments[0]));
+	CatCore::ServerUtils::SendMessage(sender, std::string("Could not find command : !" + arguments[0] + "\n" + "Use !help or !h to see available commands"));
 	return false;
 }
 
-void ServerCommands::InitializeCommands()
+void ServerCommands::InitializeCommands() // TODO: permissions
 {
-
 	// Test command
 	Command test;
 	test.names = { "test", "t" };
 	test.description = { "Just a test command that prints <Hello World>" };
 	test.permission = CatCore::PermissionLevels::Owner;
-	test.runCommand = [](const ENetPeer* sender, std::vector<std::string> args) -> bool
+	test.runCommand = [](ENetPeer* sender, std::vector<std::string> args) -> bool
 	{
 			Server::BroadcastMessage("Hello World");
 			return true;
@@ -68,15 +67,15 @@ void ServerCommands::InitializeCommands()
 	commands.push_back(test);
 
 
-
-	// Naming command needed to play the game command
+	// Naming command
 	Command name;
 	name.names = { "name", "n" };
 	name.description = { "Sends your name to the server and allows you to play the game" };
 	name.permission = CatCore::PermissionLevels::NonNamed;
-	name.runCommand = [](const ENetPeer* sender, std::vector<std::string> args) -> bool
+	name.runCommand = [](ENetPeer* sender, std::vector<std::string> args) -> bool
 	{
 		Server::GetPlayer(sender->connectID).setName(args[1]);
+		CatCore::ServerUtils::SendMessage(sender, "Name set to : " + args[1]);
 		return true;
 	};
 	commands.push_back(name);

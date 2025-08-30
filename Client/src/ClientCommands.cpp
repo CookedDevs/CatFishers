@@ -1,5 +1,5 @@
 #include "ClientCommands.h"
-#include "Server.h"
+#include "Client.h"
 
 #include <sstream>
 #include <fstream>
@@ -61,30 +61,27 @@ void ClientCommands::InitializeCommands()
 	help.description = { "Prints description of all commands" };
 	help.runCommand = [](std::vector<std::string> args) -> bool
 	{
-		std::cout << "Client commands :" << "\n";
-
+		Client::PrintLine("\nClient commands :");
 		for (Command command : commands)
 		{
+			std::string names;
 			for (auto name : command.names)
-			{
-				std::cout << "\t" << name << ", ";
-			}
+				names += ("\t" + name + ", ");
 
-			std::cout << "\t\t" << command.description << "\n";
+			Client::PrintLine(names + "\t\t" + command.description);
 		}
 
-		std::cout << "Server commands :" << "\n";
-
+		Client::PrintLine("Server commands :");
 		for (Command command : serverCommands)
 		{
+			std::string names;
 			for (auto name : command.names)
-			{
-				std::cout << "\t" << name << ", ";
-			}
+				names += ("\t" + name + ", ");
 
-			std::cout << "\t\t" << command.description << "\n";
+			Client::PrintLine(names + "\t\t" + command.description);
 		}
 
+		Client::PrintLine("");
 		return true;
 	};
 	commands.push_back(help);

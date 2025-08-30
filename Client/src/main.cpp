@@ -1,5 +1,5 @@
 
-#include "Server.h"
+#include "Client.h"
 
 #include <iostream>
 #include <raylib.h>
@@ -9,7 +9,7 @@
 
 int main()
 {
-    Server::Init();
+    Client::Init();
 
     // Initialization
     //--------------------------------------------------------------------------------------
@@ -52,7 +52,7 @@ int main()
     // Main game loop
     while (!WindowShouldClose())        // Detect window close button or ESC key
     {
-        Server::Run();
+        Client::Run();
 
         // Update
         //----------------------------------------------------------------------------------
@@ -129,7 +129,7 @@ int main()
     //--------------------------------------------------------------------------------------
     CloseWindow();        // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
-    Server::Close();
+    Client::Close();
 
     return 0;
 }

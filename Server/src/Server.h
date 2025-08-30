@@ -1,23 +1,11 @@
 
 #pragma once
 
-#if defined(_WIN32)           
-	#define NOGDI             // All GDI defines and routines
-	#define NOUSER            // All USER defines and routines
-#endif
-
-#include <enet6/enet.h>
-
-#if defined(_WIN32)           // raylib uses these names as function parameters
-	#undef near
-	#undef far
-#endif
-
 #include <string>
 #include <unordered_map>
 #include <vector>
 
-
+#include "ServerUtils.h"
 #include "Player.h"
 
 class Server
@@ -27,9 +15,6 @@ public:
 	static bool Run();
 	static void Close();
 
-	static void SendMessage(ENetPeer* receiver, const std::string message);
-	static void SendData(ENetPeer* receiver, const std::vector<std::byte> data);
-	static void SendCommandData(ENetPeer* receiver, const std::string message);
 	static void BroadcastMessage(const std::string message);
 	static void BroadcastExludeMessage(ENetPeer* excludedReseiver, const std::string message);
 

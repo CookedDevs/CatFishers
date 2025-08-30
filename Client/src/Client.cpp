@@ -1,10 +1,9 @@
-#include "Server.h"
+#include "Client.h"
 #include "Commands.h"
 #include "Player.h"
 #include "ClientCommands.h"
 
-
-void Server::Init()
+void Client::Init()
 {
     ClientCommands::InitializeCommands();
 
@@ -43,12 +42,12 @@ void Server::Init()
 
 }
 
-void Server::Close()
+void Client::Close()
 {
 
 }
 
-bool Server::Run()
+bool Client::Run()
 {
     eventStatus = enet_host_service(clientHost, &event, 5);
 
@@ -105,7 +104,7 @@ bool Server::Run()
             }
             else
             {
-                SendMessage(serverPeer, line);
+                CatCore::ServerUtils::SendMessage(serverPeer, line);
             }
         }
 #endif
@@ -114,43 +113,11 @@ bool Server::Run()
     return true;
 }
 
-
-// TODO: move to core
-void Server::SendMessage(ENetPeer* receiver, const std::string message)
+void Client::PrintLine(std::string message)
 {
-    char sendType = CatCore::ServerReceiveType::Message;
-    std::string send;
-    send.push_back(sendType);
-    send += message;
-
-    ENetPacket* packet = enet_packet_create(send.c_str(), send.size() + 1, ENET_PACKET_FLAG_RELIABLE);
-    enet_peer_send(receiver, 0, packet);
-}
-
-void Server::SendData(ENetPeer* receiver, const std::vector<std::byte> data)
-{
-    std::byte sendType = (std::byte)CatCore::ServerReceiveType::Data;
-    std::vector<std::byte> send;
-    send.push_back(sendType);
-    send.insert(send.end(), data.begin(), data.end());
-
-
-    for (auto dator : send)
-    {
-        std::cout << (unsigned char)dator;
-    }
-
-    ENetPacket* packet = enet_packet_create(send.data(), send.size() + 1, ENET_PACKET_FLAG_RELIABLE);
-    enet_peer_send(receiver, 0, packet);
-}
-
-void Server::SendCommandData(ENetPeer* receiver, const std::string message)
-{
-    char sendType = CatCore::ServerReceiveType::CommandData;
-    std::string send;
-    send.push_back(sendType);
-    send += message;
-
-    ENetPacket* packet = enet_packet_create(send.c_str(), send.size() + 1, ENET_PACKET_FLAG_RELIABLE);
-    enet_peer_send(receiver, 0, packet);
+#ifdef __ANDROID__
+    std::cout << message << "\n";
+#else
+    com.write(message);
+#endif
 }

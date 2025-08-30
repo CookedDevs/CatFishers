@@ -10,7 +10,7 @@ struct Command
 	std::string description;
 	CatCore::PermissionLevels permission;
 
-	std::function<bool(const ENetPeer* sender, std::vector<std::string> args)> runCommand;
+	std::function<bool(ENetPeer* sender, std::vector<std::string> args)> runCommand;
 };
 
 class ServerCommands
