@@ -79,20 +79,23 @@ bool Server::Run()
 
                 if (GetPlayer(event.peer->connectID).getName() != "")
                 {
-                    std::cout << "(" << GetPlayer(event.peer->connectID).getName() << ") : " << event.packet->data << "\n";
-                    enet_host_broadcast(serverHost, 0, event.packet);
+                    CatCore::Player player = GetPlayer(event.peer->connectID);
+
+                    std::cout << "(" << player.getName() << ") : " << event.packet->data << "\n";
+                    BroadcastMessage("(" + player.getName() + ") : " + (const char*)event.packet->data);
+                    enet_packet_destroy(event.packet);
                 }
                 else
                 {
                     CatCore::ServerUtils::SendMessage(event.peer, "To send messages create a name !n or !name");
                 }
             }
-            if (event.packet->data[0] == CatCore::ServerReceiveType::Data)
+            else if (event.packet->data[0] == CatCore::ServerReceiveType::Data)
             {
                 //if sent data;
             }
             break;
-    
+
         case ENET_EVENT_TYPE_DISCONNECT:
         case ENET_EVENT_TYPE_DISCONNECT_TIMEOUT:
         {

@@ -75,7 +75,7 @@ void ServerCommands::InitializeCommands() // TODO: permissions
 	name.runCommand = [](ENetPeer* sender, std::vector<std::string> args) -> bool
 	{
 		Server::GetPlayer(sender->connectID).setName(args[1]);
-		CatCore::ServerUtils::SendMessage(sender, "Name set to : " + args[1]);
+		CatCore::ServerUtils::SendMessage(sender, "Name set to : " + args[1] + "\n");
 		return true;
 	};
 	commands.push_back(name);
