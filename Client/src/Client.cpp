@@ -1,7 +1,12 @@
-#include "Server.h"
+#include "Client.h"
+#include "Commands.h"
+#include "Player.h"
+#include "ClientCommands.h"
 
-Server::Server()
+void Client::Init()
 {
+    ClientCommands::InitializeCommands();
+
     /* Initialize enet6 */
     if (enet_initialize() != 0)
     {
@@ -37,13 +42,14 @@ Server::Server()
 
 }
 
-Server::~Server()
+void Client::Close()
 {
+
 }
 
-bool Server::Run()
+bool Client::Run()
 {
-    eventStatus = enet_host_service(clientHost, &event, 100);
+    eventStatus = enet_host_service(clientHost, &event, 5);
 
     /* Inspect events */
     if (eventStatus > 0)
@@ -51,48 +57,67 @@ bool Server::Run()
         switch (event.type)
         {
         case ENET_EVENT_TYPE_CONNECT:
-            std::cout << "\n(Client) Connected to server " << addressBuffer << "\n\n";
+            std::cout << "\nConnected to server!" << addressBuffer << "\n\n";
             break;
 
         case ENET_EVENT_TYPE_RECEIVE:
-            std::cout << "(Client) Message from server: " << event.packet->data << "\n";
-            enet_packet_destroy(event.packet);
+            if (event.packet->data[0] == CatCore::ServerReceiveType::Message)
+            {
+                std::cout << event.packet->data << "\n";
+                enet_packet_destroy(event.packet);
+            }
+            else if (event.packet->data[0] == CatCore::ServerReceiveType::CommandData)
+            {
+                std::string recv = (const char*)event.packet->data;
+                recv.erase(0, 1);
+                ClientCommands::AddServerCommands(recv);
+            }
+            else if (event.packet->data[0] == CatCore::ServerReceiveType::Data)
+            {
+
+            }
+
             break;
 
         case ENET_EVENT_TYPE_DISCONNECT:
-            std::cout << "(Client) Disconnected from server\n";
+            std::cout << "Disconnected from server!\n";
+            ClientCommands::ClearServerCommands();
             return EXIT_SUCCESS;
 
         case ENET_EVENT_TYPE_DISCONNECT_TIMEOUT:
-            std::cout << "(Client) Disconnected from server (timed out)\n";
+            std::cout << "Disconnected from server (timed out)!\n";
             return EXIT_FAILURE;
         }
     }
     else if (serverPeer->state == ENET_PEER_STATE_CONNECTED)
     {
-        std::cout << "> ";
-
-        std::string line;
-        if (!std::getline(std::cin, line))
+#ifndef __ANDROID__
+        if (com.has_command())
         {
-            running = 0;
-            enet_peer_disconnect_now(serverPeer, 0);
-            std::cout << "\nDisconnected from server\n";
-        }
-        else if (!line.empty()) // user typed something (not just Enter)
-        {
-            if (line == "exit" || line == "quit")
+            std::string line = com.get_command();
+            if (line[0] == '!' && ClientCommands::HandleCommand(line)) {}
+            else if (line == "exit" || line == "quit")
             {
                 running = 0;
                 enet_peer_disconnect_now(serverPeer, 0);
-                std::cout << "\nDisconnected from server\n";
+                std::cout << "\nDisconnected from server!\n";
             }
-
-            ENetPacket* packet = enet_packet_create(line.c_str(), line.size() + 1, ENET_PACKET_FLAG_RELIABLE);
-            enet_peer_send(serverPeer, 0, packet);
-            // optionally: enet_host_flush(clientHost);
+            else
+            {
+                CatCore::ServerUtils::SendMessage(serverPeer, line);
+            }
         }
+#endif
     }
 
     return true;
+}
+
+void Client::PrintLine(std::string message)
+{
+#ifdef __ANDROID__
+    std::cout << message << "\n";
+#else
+    com.write(message);
+#endif
 }

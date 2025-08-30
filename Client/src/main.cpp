@@ -1,3 +1,5 @@
+
+#include "Client.h"
 #include "Menu.h"
 
 #include <iostream>
@@ -24,12 +26,17 @@ void Menu(){
 
 int main()
 {
+    Client::Init();
     currentState = Menu;
 
     InitWindow(screenWidth, screenHeight, "CatFishers");
 
     while (!WindowShouldClose())
     {
+        Client::Run();
+
+    Client::Close();
+
         if (IsKeyPressed(KEY_M)) {
             currentState = Game;
         }

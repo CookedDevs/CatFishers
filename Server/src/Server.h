@@ -1,31 +1,34 @@
 
 #pragma once
 
-#if defined(_WIN32)           
-	#define NOGDI             // All GDI defines and routines
-	#define NOUSER            // All USER defines and routines
-#endif
+#include <string>
+#include <unordered_map>
+#include <vector>
 
-#include <enet6/enet.h>
-
-#if defined(_WIN32)           // raylib uses these names as function parameters
-	#undef near
-	#undef far
-#endif
+#include "ServerUtils.h"
+#include "Player.h"
 
 class Server
 {
 public:
-	Server();
-	~Server();
+	static void Init();
+	static bool Run();
+	static void Close();
 
-	bool Run();
+	static void BroadcastMessage(const std::string message);
+	static void BroadcastExludeMessage(ENetPeer* excludedReseiver, const std::string message);
+
+	static const std::unordered_map<unsigned int, CatCore::Player>& GetPlayers() { return players; }
+	static const void AddPlayer(CatCore::Player player, unsigned int id) { players[id] = player; }
+	static CatCore::Player& GetPlayer(unsigned int id) { return players[id]; }
 
 private:
-	ENetAddress address;
-	ENetHost* serverHost;
-	ENetEvent event;
-	int eventStatus;
-	char addressBuffer[ENET_ADDRESS_MAX_LENGTH];
+	static inline ENetAddress address;
+	static inline ENetHost* serverHost;
+	static inline ENetEvent event;
+	static inline int eventStatus;
+	static inline char addressBuffer[ENET_ADDRESS_MAX_LENGTH];
+
+	static inline std::unordered_map<unsigned int, CatCore::Player> players;
 };
 

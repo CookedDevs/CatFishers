@@ -15,15 +15,18 @@ target("Client")
 
     -- Include directories
     add_includedirs("src", {public=false})
-    add_includedirs("Libraries/raylib/src", {public=true})  -- adjust if CatCore headers are elsewhere
 
     if is_plat("android") then
         add_includedirs(os.getenv("ANDROID_NDK_HOME") or os.getenv("NDK_ROOT") or "C:/Users/sasul/AppData/Local/Android/Sdk/ndk/29.0.13846066/sysroot/usr/include", {public=false})
     end
 
     -- Dependenciess
-    add_packages("enet6")
+    add_packages("enet6", "nlohmann_json")
     add_deps("CatCore", "raylib")
+
+    if not is_plat("android") then
+        add_deps("commandline")
+    end
 
     if is_plat("windows") then
         add_defines("WIN32_LEAN_AND_MEAN", "NOMINMAX", "NOGDI")

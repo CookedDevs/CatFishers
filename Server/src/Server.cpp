@@ -1,8 +1,12 @@
 #include "Server.h"
 #include <iostream>
+#include <CatCore.h>
 
-Server::Server()
+#include "ServerCommands.h"
+
+void Server::Init()
 {
+    ServerCommands::InitializeCommands();
     std::cout << "Starting ENet server host .....\n";
     
     /* Initialize enet6 */
@@ -17,7 +21,8 @@ Server::Server()
     atexit(enet_deinitialize);
 
     /* Build the listen address (any + port) */
-    enet_address_build_any(&address, ENET_ADDRESS_TYPE_IPV6);
+    //enet_address_build_any(&address, ENET_ADDRESS_TYPE_IPV6);
+    enet_address_set_host(&address, ENET_ADDRESS_TYPE_IPV6, "localhost");
     address.port = 1234;
 
     /* Create a host using enet_host_create, address type has to match the address,  */
@@ -35,7 +40,7 @@ Server::Server()
     eventStatus = 1;
 }
 
-Server::~Server()
+void Server::Close()
 {
     enet_host_destroy(serverHost);
 }
@@ -52,15 +57,45 @@ bool Server::Run()
         case ENET_EVENT_TYPE_CONNECT:
         {
             enet_address_get_host_ip(&event.peer->address, addressBuffer, ENET_ADDRESS_MAX_LENGTH);
-            std::cout << "(Server) We got a new connection from " << addressBuffer << "\n";
+            std::cout << "New connection : " << addressBuffer << "\n";
+            AddPlayer(CatCore::Player(), event.peer->connectID);
+            ServerCommands::SendCommandInfo(event.peer);
+
             break;
         }
     
         case ENET_EVENT_TYPE_RECEIVE:
-            std::cout << "(Server) Message from client : " << event.packet->data << "\n";
-            enet_host_broadcast(serverHost, 0, event.packet);
+
+            if (event.packet->data[0] == CatCore::ServerReceiveType::Message)
+            {
+                if (event.packet->data[1] == '!')
+                {
+                    std::string command = (const char*)event.packet->data;
+                    command.erase(0, 1);
+
+                    ServerCommands::HandleCommand(command, event.peer);
+                    break;
+                }
+
+                if (GetPlayer(event.peer->connectID).getName() != "")
+                {
+                    CatCore::Player player = GetPlayer(event.peer->connectID);
+
+                    std::cout << "(" << player.getName() << ") : " << event.packet->data << "\n";
+                    BroadcastMessage("(" + player.getName() + ") : " + (const char*)event.packet->data);
+                    enet_packet_destroy(event.packet);
+                }
+                else
+                {
+                    CatCore::ServerUtils::SendMessage(event.peer, "To send messages create a name !n or !name");
+                }
+            }
+            else if (event.packet->data[0] == CatCore::ServerReceiveType::Data)
+            {
+                //if sent data;
+            }
             break;
-    
+
         case ENET_EVENT_TYPE_DISCONNECT:
         case ENET_EVENT_TYPE_DISCONNECT_TIMEOUT:
         {
@@ -70,5 +105,28 @@ bool Server::Run()
         }
         }
     }
+
     return true;
+}
+
+void Server::BroadcastMessage(const std::string message)
+{
+    char sendType = CatCore::ServerReceiveType::Message;
+    std::string send;
+    send.push_back(sendType);
+    send += message;
+
+    ENetPacket* packet = enet_packet_create(send.c_str(), send.size() + 1, ENET_PACKET_FLAG_RELIABLE);
+    enet_host_broadcast(serverHost, 0, packet);
+}
+
+void Server::BroadcastExludeMessage(ENetPeer* excludedReseiver, const std::string message)
+{
+    char sendType = CatCore::ServerReceiveType::Message;
+    std::string send;
+    send.push_back(sendType);
+    send += message;
+
+    ENetPacket* packet = enet_packet_create(send.c_str(), send.size() + 1, ENET_PACKET_FLAG_RELIABLE);
+    enet_host_broadcast(serverHost, 0, packet);
 }

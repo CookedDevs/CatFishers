@@ -3,12 +3,13 @@
 
 int main()
 {
-    Server server;
+    Server::Init();
+
+    
 
     while (true)
-    {
-        server.Run();
-    }
+        Server::Run();
     
+    Server::Close();
     return 1;
 }

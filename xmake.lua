@@ -5,7 +5,13 @@ add_rules("mode.debug", "mode.release")
 -- --------------------
 
 includes("Libraries/raylib") 
+
+if not is_plat("android") then
+    includes("Libraries/commandline")
+end
+
 add_requires("enet6", {system=false})
+add_requires("nlohmann_json")
 
 
 -- Set project
@@ -160,6 +166,12 @@ task("package_apk")
             mf:write('<?xml version="1.0" encoding="utf-8"?>\n')
             mf:write(('<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="%s" android:versionCode="%d" android:versionName="%s">\n')
                 :format(app_package, app_versioncode, app_version))
+        
+            -- internet permission for ENet / network access
+            mf:write('  <uses-permission android:name="android.permission.INTERNET" />\n')
+            -- optional: if you want to query network state on device
+            -- mf:write('  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />\n')
+        
             mf:write(('  <uses-sdk android:minSdkVersion="%d" android:targetSdkVersion="%d" />\n')
                 :format(min_sdk, target_sdk))
             mf:write('  <uses-feature android:glEsVersion="0x00020000" android:required="true" />\n')
