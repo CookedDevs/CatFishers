@@ -5,6 +5,11 @@ add_rules("mode.debug", "mode.release")
 -- --------------------
 
 includes("Libraries/raylib") 
+
+if not is_plat("android") then
+    includes("Libraries/commandline")
+end
+
 add_requires("enet6", {system=false})
 add_requires("nlohmann_json")
 

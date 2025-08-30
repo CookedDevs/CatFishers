@@ -87,6 +87,10 @@ bool Server::Run()
                     SendMessage(event.peer, "To send messages create a name !n or !name");
                 }
             }
+            if (event.packet->data[0] == CatCore::ServerReceiveType::Data)
+            {
+                //if sent data;
+            }
             break;
     
         case ENET_EVENT_TYPE_DISCONNECT:
@@ -113,14 +117,14 @@ void Server::SendMessage(ENetPeer* receiver, const std::string message)
     enet_peer_send(receiver, 0, packet);
 }
 
-void Server::SendData(ENetPeer* receiver, const std::string message)
+void Server::SendData(ENetPeer* receiver, const std::vector<std::byte> data)
 {
-    char sendType = CatCore::ServerReceiveType::Data;
-    std::string send;
+    std::byte sendType = (std::byte)CatCore::ServerReceiveType::Data;
+    std::vector<std::byte> send;
     send.push_back(sendType);
-    send += message;
+    send.insert(send.end(), data.begin(), data.end());
 
-    ENetPacket* packet = enet_packet_create(send.c_str(), send.size() + 1, ENET_PACKET_FLAG_RELIABLE);
+    ENetPacket* packet = enet_packet_create(&send[0], send.size() + 1, ENET_PACKET_FLAG_RELIABLE);
     enet_peer_send(receiver, 0, packet);
 }
 

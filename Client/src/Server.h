@@ -15,22 +15,34 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
+
+#ifndef __ANDROID__
+#include <commandline.h>
+#endif
 
 class Server
 {
 public:
-	Server();
-	~Server();
+	static void Init();
+	static bool Run();
+	static void Close();
 
-	bool Run();
-
+	static void SendMessage(ENetPeer* receiver, const std::string message);
+	static void SendData(ENetPeer* receiver, const std::vector<std::byte> data);
+	static void SendCommandData(ENetPeer* receiver, const std::string message);
 private:
-	ENetAddress address;
-	ENetHost* clientHost;
-	ENetPeer* serverPeer;
-	ENetEvent event;
-	int eventStatus;
-	char addressBuffer[ENET_ADDRESS_MAX_LENGTH];
-	int running = 1;
+	static inline ENetAddress address;
+	static inline ENetHost* clientHost;
+	static inline ENetPeer* serverPeer;
+	static inline ENetEvent event;
+	static inline int eventStatus;
+	static inline char addressBuffer[ENET_ADDRESS_MAX_LENGTH];
+	static inline int running = 1;
+
+#ifndef __ANDROID__
+	static inline Commandline com;
+#endif
+
 };
 

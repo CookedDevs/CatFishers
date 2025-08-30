@@ -24,6 +24,10 @@ target("Client")
     add_packages("enet6", "nlohmann_json")
     add_deps("CatCore", "raylib")
 
+    if not is_plat("android") then
+        add_deps("commandline")
+    end
+
     if is_plat("windows") then
         add_defines("WIN32_LEAN_AND_MEAN", "NOMINMAX", "NOGDI")
         add_syslinks("gdi32", "winmm", "user32", "kernel32")

@@ -1,10 +1,10 @@
 #include "Server.h"
 #include "Commands.h"
 #include "Player.h"
-
 #include "ClientCommands.h"
 
-Server::Server()
+
+void Server::Init()
 {
     ClientCommands::InitializeCommands();
 
@@ -43,8 +43,9 @@ Server::Server()
 
 }
 
-Server::~Server()
+void Server::Close()
 {
+
 }
 
 bool Server::Run()
@@ -91,16 +92,10 @@ bool Server::Run()
     }
     else if (serverPeer->state == ENET_PEER_STATE_CONNECTED)
     {
-        std::cout << "> ";
-
-        char sendType = CatCore::ServerReceiveType::Message;
-
-        std::string line;
-        std::getline(std::cin, line);
-        if (!line.empty()) // user typed something (not just Enter)
+#ifndef __ANDROID__
+        if (com.has_command())
         {
-            std::string send;
-
+            std::string line = com.get_command();
             if (line[0] == '!' && ClientCommands::HandleCommand(line)) {}
             else if (line == "exit" || line == "quit")
             {
@@ -110,14 +105,52 @@ bool Server::Run()
             }
             else
             {
-                send.push_back(sendType);
-                send += line;
-
-                ENetPacket* packet = enet_packet_create(send.c_str(), send.size() + 1, ENET_PACKET_FLAG_RELIABLE);
-                enet_peer_send(serverPeer, 0, packet);
+                SendMessage(serverPeer, line);
             }
         }
+#endif
     }
 
     return true;
+}
+
+
+// TODO: move to core
+void Server::SendMessage(ENetPeer* receiver, const std::string message)
+{
+    char sendType = CatCore::ServerReceiveType::Message;
+    std::string send;
+    send.push_back(sendType);
+    send += message;
+
+    ENetPacket* packet = enet_packet_create(send.c_str(), send.size() + 1, ENET_PACKET_FLAG_RELIABLE);
+    enet_peer_send(receiver, 0, packet);
+}
+
+void Server::SendData(ENetPeer* receiver, const std::vector<std::byte> data)
+{
+    std::byte sendType = (std::byte)CatCore::ServerReceiveType::Data;
+    std::vector<std::byte> send;
+    send.push_back(sendType);
+    send.insert(send.end(), data.begin(), data.end());
+
+
+    for (auto dator : send)
+    {
+        std::cout << (unsigned char)dator;
+    }
+
+    ENetPacket* packet = enet_packet_create(send.data(), send.size() + 1, ENET_PACKET_FLAG_RELIABLE);
+    enet_peer_send(receiver, 0, packet);
+}
+
+void Server::SendCommandData(ENetPeer* receiver, const std::string message)
+{
+    char sendType = CatCore::ServerReceiveType::CommandData;
+    std::string send;
+    send.push_back(sendType);
+    send += message;
+
+    ENetPacket* packet = enet_packet_create(send.c_str(), send.size() + 1, ENET_PACKET_FLAG_RELIABLE);
+    enet_peer_send(receiver, 0, packet);
 }

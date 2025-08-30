@@ -9,7 +9,7 @@
 
 int main()
 {
-    Server server;
+    Server::Init();
 
     // Initialization
     //--------------------------------------------------------------------------------------
@@ -52,7 +52,7 @@ int main()
     // Main game loop
     while (!WindowShouldClose())        // Detect window close button or ESC key
     {
-        server.Run();
+        Server::Run();
 
         // Update
         //----------------------------------------------------------------------------------
@@ -129,6 +129,7 @@ int main()
     //--------------------------------------------------------------------------------------
     CloseWindow();        // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
+    Server::Close();
 
     return 0;
 }

@@ -13,6 +13,10 @@ target("Server")
     add_deps("CatCore")
     add_packages("CatCore", "raylib", "enet6", "nlohmann_json")
 
+    if not is_plat("android") then
+        add_deps("commandline")
+    end
+
     -- Android system libraries if needed
     if is_plat("windows") then
         add_syslinks("gdi32", "winmm", "user32", "kernel32")
