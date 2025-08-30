@@ -4,10 +4,11 @@
 class Menu
 {
 public:
-	Menu();
+	static void Start();
+	static void Update();
 	~Menu();
-
-private:
-
 };
+
+static int perlinNoiseMapLoc;
+static int timeLoc;
 
