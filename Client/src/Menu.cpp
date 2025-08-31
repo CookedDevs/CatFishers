@@ -1,6 +1,7 @@
 #include "Menu.h"
 #include <iostream>
 #include <raylib.h>
+#include <math.h>
 #include <functional>
 
 #define NUM_FRAMES  3 
@@ -10,9 +11,18 @@ const int screenHeight = 450;
 
 static Camera2D camera;
 static float timeValue = 0.0f;
-Model model;
-Vector3 position = { 0.0f, 0.0f, 0.0f }; // Set model position
+Texture2D NewGameButton;
+Rectangle btnBounds;
 
+int btnState = 0;               
+bool NewGameAction = false;         
+
+Color color = WHITE;
+
+Vector2 mousePoint = { 0.0f, 0.0f };
+
+float frameHeight;
+Rectangle sourceRec;
 
 Menu::~Menu()
 {
