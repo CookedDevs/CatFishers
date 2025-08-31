@@ -10,4 +10,4 @@ target("CatCore")
     add_includedirs("src", {public=true})
 
     -- Dependencies
-    add_packages("raylib", "enet6", "nlohmann_json")
+    add_packages("enet6", "nlohmann_json")
