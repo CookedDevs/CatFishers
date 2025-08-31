@@ -49,7 +49,7 @@ void Client::Close()
 
 bool Client::Run()
 {
-    eventStatus = enet_host_service(clientHost, &event, 5);
+    eventStatus = enet_host_service(clientHost, &event, 0);
 
     /* Inspect events */
     if (eventStatus > 0)

@@ -28,7 +28,7 @@ private:
 	static inline int running = 1;
 
 #ifndef __ANDROID__
-	static inline Commandline com;
+	static inline Commandline com = Commandline("");
 #endif
 
 };
