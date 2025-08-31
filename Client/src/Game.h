@@ -1,19 +1,15 @@
 #pragma once
 #include "State.h"
 
-class Menu : public State
+class Game : public State
 {
 public:
-	Menu() {}
-	~Menu();
+	Game() {}
+	~Game();
 
 	void Init() override;
 	void Update() override;
 	std::string GetName() override;
 private:
-	int perlinNoiseMapLoc;
-	int timeLoc;
+
 };
-
-
-

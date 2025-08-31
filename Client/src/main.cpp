@@ -1,48 +1,35 @@
 
 #include "Client.h"
 #include "Menu.h"
+#include "Game.h"
+#include "State.h"
 
 #include <iostream>
 #include <raylib.h>
-#include <math.h>
-#include <functional>
-#include <mutex>
 
 std::once_flag onceFlag;
+std::once_flag onceFlag2;
 const int screenWidth = 800;
 const int screenHeight = 450;
-
-std::function<void()> currentState;
-
-
-void Game(){
-
-}
-
-void Menu(){
-    std::call_once(onceFlag, Menu::Start);
-    Menu::Update();
-}
 
 int main()
 {
     Client::Init();
-    currentState = Menu;
-
     InitWindow(screenWidth, screenHeight, "CatFishers");
 
+    CurrentState::SetState(new Menu);
     while (!WindowShouldClose())
     {
         Client::Run();
 
-    Client::Close();
-
         if (IsKeyPressed(KEY_M)) {
-            currentState = Game;
+            CurrentState::SetState(new Game);
         }
-        currentState();
+        CurrentState::UpdateState();
     }
 
+    Client::Close();
+    CurrentState::DeleteCurrentState();
     CloseWindow();
     return 0;
 }

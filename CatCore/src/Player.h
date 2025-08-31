@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include "CatMath.h"
 
 namespace CatCore
 {
@@ -10,6 +11,7 @@ namespace CatCore
 		Player();
 		~Player();
 
+		Vector3 position;
 		std::string getName() { return name; }
 		void setName(std::string name) { this->name = name; }
 

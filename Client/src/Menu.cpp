@@ -1,7 +1,6 @@
 #include "Menu.h"
 #include <iostream>
 #include <raylib.h>
-#include <math.h>
 #include <functional>
 
 const int screenWidth = 800;
@@ -12,17 +11,25 @@ static float timeValue = 0.0f;
 Model model;
 Vector3 position = { 0.0f, 0.0f, 0.0f }; // Set model position
 
-void Menu::Start()
+
+Menu::~Menu()
 {
     UnloadModel(model);
+}
+
+std::string Menu::GetName() { return "Menu"; }
+void Menu::Init()
+{
+    //UnloadModel(model);
     camera.position = Vector3{ 0.0f, 0.4f, 20.0f };
     camera.target = Vector3{ 0.0f, 0.1f, 0.0f };
     camera.up = Vector3{ 0.0f, 1.0f, 0.0f };
     camera.fovy = 45.0f;
     camera.projection = CAMERA_PERSPECTIVE;
 
-    model = LoadModel("water.glb");
+    model = LoadModel("../../../../Client/Resources/Models/water.glb");
 }
+
 void Menu::Update()
 {
     UpdateCamera(&camera, CAMERA_FREE);
@@ -40,7 +47,3 @@ void Menu::Update()
     EndDrawing();
 }
 
-Menu::~Menu()
-{
-    UnloadModel(model);
-}
