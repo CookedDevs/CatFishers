@@ -4,37 +4,68 @@
 #include <math.h>
 #include <functional>
 
+#define NUM_FRAMES  3 
+
 const int screenWidth = 800;
 const int screenHeight = 450;
 
-static Camera3D camera;
+static Camera2D camera;
 static float timeValue = 0.0f;
-Model model;
-Vector3 position = { 0.0f, 0.0f, 0.0f }; // Set model position
+Texture2D NewGameButton;
+Rectangle btnBounds;
+
+int btnState = 0;               
+bool NewGameAction = false;         
+
+Color color = WHITE;
+
+Vector2 mousePoint = { 0.0f, 0.0f };
+
+float frameHeight;
+Rectangle sourceRec;
 
 void Menu::Start()
 {
-    UnloadModel(model);
-    camera.position = Vector3{ 0.0f, 0.4f, 20.0f };
-    camera.target = Vector3{ 0.0f, 0.1f, 0.0f };
-    camera.up = Vector3{ 0.0f, 1.0f, 0.0f };
-    camera.fovy = 45.0f;
-    camera.projection = CAMERA_PERSPECTIVE;
+    camera.target = Vector2{ 0.0f, 0.0f};
+    NewGameButton = LoadTexture("NewGame.png");
+    NewGameButton.height = NewGameButton.height/2;
+    NewGameButton.width = NewGameButton.width/2;
 
-    model = LoadModel("water.glb");
+    frameHeight = (float)NewGameButton.height/NUM_FRAMES;
+    sourceRec = { 0, 0, (float)NewGameButton.width, frameHeight};
+
+    btnBounds = { screenWidth/2.0f - NewGameButton.width/2.0f, (screenHeight/2.0f - NewGameButton.height/NUM_FRAMES/2.0f) - 50, (float)NewGameButton.width, frameHeight };
+
+
 }
 void Menu::Update()
 {
-    UpdateCamera(&camera, CAMERA_FREE);
-
+    mousePoint = GetMousePosition();
     timeValue += GetFrameTime();
+    NewGameAction = false;
+
+    if (CheckCollisionPointRec(mousePoint, btnBounds))
+    {
+        if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) btnState = 2;
+        else btnState = 1;
+
+        if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) NewGameAction = true;
+    }
+    else btnState = 0;
+
+    if (NewGameAction)
+    {
+        // TODO: Any desired action
+    }
+
+    sourceRec.y = btnState*frameHeight;
 
     BeginDrawing();
         ClearBackground(SKYBLUE);
+        DrawTextureRec(NewGameButton, sourceRec, Vector2{ btnBounds.x, btnBounds.y}, WHITE);
 
-        BeginMode3D(camera);
-            DrawModel(model, position, 1.0f, WHITE);
-        EndMode3D();
+        BeginMode2D(camera);
+        EndMode2D();
 
         DrawFPS(10, 10);
     EndDrawing();
@@ -42,5 +73,5 @@ void Menu::Update()
 
 Menu::~Menu()
 {
-    UnloadModel(model);
+    UnloadTexture(NewGameButton);
 }

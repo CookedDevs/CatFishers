@@ -16,7 +16,7 @@ std::function<void()> currentState;
 
 
 void Game(){
-
+    
 }
 
 void Menu(){
@@ -34,8 +34,7 @@ int main()
     while (!WindowShouldClose())
     {
         Client::Run();
-
-    Client::Close();
+        Client::Close();
 
         if (IsKeyPressed(KEY_M)) {
             currentState = Game;
