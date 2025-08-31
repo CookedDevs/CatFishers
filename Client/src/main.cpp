@@ -7,8 +7,6 @@
 #include <iostream>
 #include <raylib.h>
 
-std::once_flag onceFlag;
-std::once_flag onceFlag2;
 const int screenWidth = 800;
 const int screenHeight = 450;
 
