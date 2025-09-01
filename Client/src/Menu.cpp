@@ -33,7 +33,7 @@ std::string Menu::GetName() { return "Menu"; }
 void Menu::Init()
 {
     camera.target = Vector2{ 0.0f, 0.0f};
-    NewGameButton = LoadTexture("NewGame.png");
+    NewGameButton = LoadTexture("Resources/Images/newgame.png");
     NewGameButton.height = NewGameButton.height/2;
     NewGameButton.width = NewGameButton.width/2;
 

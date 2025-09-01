@@ -147,6 +147,12 @@ task("package_apk")
         local apk_build_libs = path.join(projectdir, build_dir, "lib")
         os.mkdir(apk_build_res); os.mkdir(apk_build_assets); os.mkdir(apk_build_libs)
 
+
+        local resourcesLocation = path.join(projectdir, "Client", "Resources")
+        if os.isdir(resourcesLocation) then
+            os.cp(resourcesLocation, apk_build_assets)
+            print("Copied resources to assets:", built_lib)
+        end
         -- ensure res/values/strings.xml
         local values_dir = path.join(apk_build_res, "values")
         os.mkdir(values_dir)
@@ -246,7 +252,7 @@ task("package_apk")
 
 
         -- run aapt package
-        local aapt_cmd = ("%s package -f -M %s -S %s -I %s -F %s"):format(aapt, manifest_path, apk_build_res, android_jar, unaligned_apk)
+        local aapt_cmd = ("%s package -f -M %s -S %s -A %s -I %s -F %s"):format(aapt, manifest_path, apk_build_res, apk_build_assets, android_jar, unaligned_apk)
         print("\nRunning aapt:", aapt_cmd)
         os.exec(aapt_cmd)
 
