@@ -7,6 +7,7 @@ class State
 public:
     virtual ~State() = default;
 
+    virtual void UnInit() = 0;
     virtual void Init() = 0;
     virtual void Update() = 0;
     virtual std::string GetName() = 0;
@@ -19,6 +20,12 @@ public:
     {
         if (currState != nullptr)
         {
+            if (state->GetName() != currState->GetName())
+            {
+                currState->UnInit();
+                state->Init();
+            }
+
             delete currState;
             currState = state;
         }
@@ -27,9 +34,6 @@ public:
             currState = state;
             currState->Init();
         }
-
-        if (state->GetName() != currState->GetName())
-            currState->Init();
     }
     static void UpdateState() { currState->Update(); }
     static void DeleteCurrentState() { delete currState; }

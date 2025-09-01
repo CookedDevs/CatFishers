@@ -24,7 +24,7 @@ Vector2 mousePoint = { 0.0f, 0.0f };
 float frameHeight;
 Rectangle sourceRec;
 
-Menu::~Menu()
+void Menu::UnInit()
 {
     UnloadTexture(NewGameButton);
 }

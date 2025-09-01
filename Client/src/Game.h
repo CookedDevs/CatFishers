@@ -5,8 +5,9 @@ class Game : public State
 {
 public:
 	Game() {}
-	~Game();
+	~Game() {}
 
+	void UnInit() override;
 	void Init() override;
 	void Update() override;
 	std::string GetName() override;

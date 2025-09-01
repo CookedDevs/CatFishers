@@ -4,7 +4,7 @@
 #include <math.h>
 #include <functional>
 
-Game::~Game()
+void Game::UnInit()
 {
 	std::cout << "GAME STATE DELETE";
 }

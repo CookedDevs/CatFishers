@@ -21,7 +21,7 @@ int main()
         Client::Run();
 
         if (IsKeyPressed(KEY_M)) {
-            CurrentState::SetState(new Game); //TODO: Add uninit stuff to setState
+            CurrentState::SetState(new Game);
         }
         CurrentState::UpdateState();
     }
