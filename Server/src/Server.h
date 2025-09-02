@@ -16,19 +16,22 @@ public:
 	static void Close();
 
 	static void BroadcastMessage(const std::string message);
-	static void BroadcastExludeMessage(ENetPeer* excludedReseiver, const std::string message);
+	static void SendPlayers();
+	static void SendPlayerData(const std::vector<uint8_t> data);
+	static void BroadcastExludeMessage(ENetPeer* excludedReseiver, const std::string message, CatCore::ServerReceiveType type);
 
-	static const std::unordered_map<unsigned int, CatCore::Player>& GetPlayers() { return players; }
-	static const void AddPlayer(CatCore::Player player, unsigned int id) { players[id] = player; }
-	static CatCore::Player& GetPlayer(unsigned int id) { return players[id]; }
+	static const std::unordered_map<ENetPeer*, CatCore::Player>& GetPlayers() { return players; }
+	static const void AddPlayer(CatCore::Player player, ENetPeer* peer) { players[peer] = player; }
+	static CatCore::Player& GetPlayer(ENetPeer* peer) { return players[peer]; }
 
 private:
+	static inline std::unordered_map<char, bool> inputInfo;
 	static inline ENetAddress address;
 	static inline ENetHost* serverHost;
 	static inline ENetEvent event;
 	static inline int eventStatus;
 	static inline char addressBuffer[ENET_ADDRESS_MAX_LENGTH];
 
-	static inline std::unordered_map<unsigned int, CatCore::Player> players;
+	static inline std::unordered_map<ENetPeer*, CatCore::Player> players;
 };
 

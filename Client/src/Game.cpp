@@ -1,21 +1,55 @@
 #include "Game.h"
-#include <iostream>
-#include <raylib.h>
-#include <math.h>
-#include <functional>
+#include "Player.h"
+#include "Client.h"
 
 void Game::UnInit()
 {
-	std::cout << "GAME STATE DELETE";
+    LoadedTextures::UnLoadAllTex();
 }
 
 std::string Game::GetName() { return "Game"; }
 void Game::Init()
 {
-	std::cout << "GAME STATE INIT";
+    camera.target = Vector2{ 0.0f, 0.0f };
+
+    //CatCore::Player plr;
+    //plr.name = "Sus";
+    //plr.position = { 1,1 };
+    //Client::playerTex = LoadedTextures::LoadTex(plr.texture);
+    //player = plr;
+
+}
+
+void Game::SetKey(const char key)
+{
+    if (inputs.find(key) == inputs.end())
+    {
+        inputs[key] = IsKeyDown(key);
+        changedInputs[key] = inputs[key];
+    }
+    else if (IsKeyDown(key) != inputs[key])
+    {
+        inputs[key] = !inputs[key];
+        changedInputs[key] = inputs[key];
+    }
 }
 
 void Game::Update()
 {
-	//std::cout << "GAME STATE UPDATE";
+    //SetTargetFPS(20);
+    changedInputs.clear();
+    SetKey('A'); SetKey('D');
+    SetKey('W'); SetKey('S');
+    Client::SendInputData(changedInputs);
+
+    BeginDrawing();
+    ClearBackground(SKYBLUE);
+    
+    BeginMode2D(camera);
+    EndMode2D();
+
+    DrawTexture(Client::playerTex, Client::player.position.x, Client::player.position.y, WHITE);
+
+    DrawFPS(10, 10);
+    EndDrawing();
 }

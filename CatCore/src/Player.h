@@ -11,12 +11,11 @@ namespace CatCore
 		Player();
 		~Player();
 
-		Vector3 position;
-		std::string getName() { return name; }
-		void setName(std::string name) { this->name = name; }
+		Vector3 position = { 0,0,0 };
 
-	private:
+		std::string texture = "Resources/Images/Cat.png";
 		std::string name = "";
+	private:
 	};
 
 }
