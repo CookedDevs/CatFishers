@@ -20,12 +20,17 @@ public:
 	static void SendPlayerData(const std::vector<uint8_t> data);
 	static void BroadcastExludeMessage(ENetPeer* excludedReseiver, const std::string message, CatCore::ServerReceiveType type);
 
-	static const std::unordered_map<ENetPeer*, CatCore::Player>& GetPlayers() { return players; }
+	static std::unordered_map<ENetPeer*, CatCore::Player>& GetPlayers() { return players; }
 	static const void AddPlayer(CatCore::Player player, ENetPeer* peer) { players[peer] = player; }
-	static CatCore::Player& GetPlayer(ENetPeer* peer) { return players[peer]; }
+	static CatCore::Player& GetPlayer(ENetPeer* peer) 
+	{
+		if (players.find(peer) != players.end())
+			return players[peer];
+		else
+			return CatCore::Player();
+	}
 
 private:
-	static inline std::unordered_map<char, bool> inputInfo;
 	static inline ENetAddress address;
 	static inline ENetHost* serverHost;
 	static inline ENetEvent event;

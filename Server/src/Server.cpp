@@ -107,7 +107,7 @@ bool Server::Run()
                 if (inputs.size() >= 2)
                 {
                     std::cout << inputs[0] << " Is : " << (bool)inputs[1] << "\n";
-                    inputInfo[inputs[0]] = inputs[1];
+                    GetPlayer(event.peer).inputInfo[inputs[0]] = inputs[1];
                 }
             }
             break;
@@ -122,19 +122,17 @@ bool Server::Run()
         }
     }
 
-    if (inputInfo['A'])
+    for (auto& player : players)
     {
-        GetPlayer(event.peer).position.x -= 1.f;
-        std::cout << "AAA\n";
+        if (player.second.inputInfo['A'])
+            player.second.position.x -= 1.f;
+        if (player.second.inputInfo['D'])
+            player.second.position.x += 1.f;
+        if (player.second.inputInfo['W'])
+            player.second.position.y -= 1.f;
+        if (player.second.inputInfo['S'])
+            player.second.position.y += 1.f;
     }
-    if (inputInfo['D'])
-    {
-        GetPlayer(event.peer).position.x += 1.f; 
-    }
-    if (inputInfo['W'])
-        GetPlayer(event.peer).position.y -= 1.f;
-    if (inputInfo['S'])
-        GetPlayer(event.peer).position.y += 1.f;
 
     SendPlayers();
     enet_host_flush(serverHost);

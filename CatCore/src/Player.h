@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <unordered_map>
 #include "CatMath.h"
 
 namespace CatCore
@@ -15,7 +16,10 @@ namespace CatCore
 
 		std::string texture = "Resources/Images/Cat.png";
 		std::string name = "";
+		std::unordered_map<char, bool> inputInfo;
+
 	private:
+
 	};
 
 }

@@ -73,6 +73,7 @@ bool Client::Run()
             }
             else if (event.packet->data[0] == CatCore::ServerReceiveType::PlayerData)
             {
+                players.clear();
                 char* buffer = (char*)event.packet->data;
                 unsigned int offset = 1;
 
@@ -93,7 +94,7 @@ bool Client::Run()
                     plr.name = name;
                     plr.texture = texture;
                     plr.position = position;
-                    player = plr;
+                    players.push_back(plr);
                     playerTex = LoadedTextures::LoadTex(plr.texture);
                 }
             }
