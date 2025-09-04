@@ -49,7 +49,7 @@ void Game::Update()
     EndMode2D();
 
     for (CatCore::Player player : Client::players)
-        DrawTexture(Client::playerTex, player.position.x, player.position.y, WHITE);
+        DrawTexture(*Client::playerTex, player.position.x, player.position.y, WHITE);
 
     DrawFPS(10, 10);
     EndDrawing();

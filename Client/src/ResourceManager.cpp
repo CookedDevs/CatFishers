@@ -1,7 +1,7 @@
 #include "ResourceManager.h"
 
 
-Texture2D& LoadedTextures::LoadTex(std::string texture)
+Texture2D* LoadedTextures::LoadTex(std::string texture)
 {
 	if (loadedTextures.find(texture) == loadedTextures.end())
 	{
@@ -9,14 +9,14 @@ Texture2D& LoadedTextures::LoadTex(std::string texture)
 		if (texture2d.id <= 0)
 		{
 			std::cout << "Could not load texture : " << texture << " !!\n";
-			return Texture2D();
+			return nullptr;
 		}
 		loadedTextures[texture] = { texture2d, 1 };
 	}
 	else
 		loadedTextures[texture].uses += 1;
 
-	return loadedTextures[texture].texture;
+	return &loadedTextures[texture].texture;
 }
 
 void LoadedTextures::UnLoadTex(std::string texture)
@@ -35,12 +35,12 @@ void LoadedTextures::UnLoadTex(std::string texture)
 		std::cout << "Could not find loaded texture : " << texture << " !!\n";
 }
 
-Texture2D& LoadedTextures::GetTex(std::string texture)
+Texture2D* LoadedTextures::GetTex(std::string texture)
 {
 	if (loadedTextures.find(texture) != loadedTextures.end())
-		return loadedTextures[texture].texture;
+		return &loadedTextures[texture].texture;
 	else
-		return Texture2D();
+		return nullptr;
 }
 
 void LoadedTextures::UnLoadAllTex()

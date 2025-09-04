@@ -13,6 +13,7 @@
 #endif
 
 #include <iostream>
+#include <cstring>
 #include <vector>
 
 #include "Commands.h"

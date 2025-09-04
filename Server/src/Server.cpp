@@ -84,9 +84,9 @@ bool Server::Run()
                     break;
                 }
 
-                if (GetPlayer(event.peer).name != "")
+                if (GetPlayer(event.peer)->name != "")
                 {
-                    CatCore::Player player = GetPlayer(event.peer);
+                    CatCore::Player& player = *GetPlayer(event.peer);
 
                     std::cout << "(" << player.name << ") : " << event.packet->data << "\n";
                     BroadcastMessage("(" + player.name + ") : " + (const char*)event.packet->data);
@@ -107,7 +107,7 @@ bool Server::Run()
                 if (inputs.size() >= 2)
                 {
                     std::cout << inputs[0] << " Is : " << (bool)inputs[1] << "\n";
-                    GetPlayer(event.peer).inputInfo[inputs[0]] = inputs[1];
+                    GetPlayer(event.peer)->inputInfo[inputs[0]] = inputs[1];
                 }
             }
             break;

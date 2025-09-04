@@ -24,7 +24,7 @@ public:
 	static void SendInputData(const std::unordered_map<char, bool> input);
 
 	static inline std::vector<CatCore::Player> players;
-	static inline Texture2D playerTex;
+	static inline Texture2D* playerTex;
 
 private:
 	static inline ENetAddress address;

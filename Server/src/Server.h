@@ -22,12 +22,12 @@ public:
 
 	static std::unordered_map<ENetPeer*, CatCore::Player>& GetPlayers() { return players; }
 	static const void AddPlayer(CatCore::Player player, ENetPeer* peer) { players[peer] = player; }
-	static CatCore::Player& GetPlayer(ENetPeer* peer) 
+	static CatCore::Player* GetPlayer(ENetPeer* peer) 
 	{
 		if (players.find(peer) != players.end())
-			return players[peer];
+			return &players[peer];
 		else
-			return CatCore::Player();
+			return nullptr;
 	}
 
 private:

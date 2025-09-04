@@ -6,9 +6,9 @@
 class LoadedTextures
 {
 public:
-	static Texture2D& LoadTex(std::string texture);
+	static Texture2D* LoadTex(std::string texture);
 	static void UnLoadTex(std::string texture);
-	static Texture2D& GetTex(std::string texture);
+	static Texture2D* GetTex(std::string texture);
 	static void UnLoadAllTex();
 private:
 	struct loadTexture

@@ -56,7 +56,7 @@ namespace CatCore
 
     void ServerUtils::readFromBuffer(const char* buffer, unsigned int& offset, void* data, size_t size)
     {
-        std::memcpy(data, buffer + offset, size);
+        memcpy(data, buffer + offset, size);
         offset += size;
     }
 
