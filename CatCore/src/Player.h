@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <unordered_map>
 #include "CatMath.h"
 
 namespace CatCore
@@ -11,12 +12,14 @@ namespace CatCore
 		Player();
 		~Player();
 
-		Vector3 position;
-		std::string getName() { return name; }
-		void setName(std::string name) { this->name = name; }
+		Vector3 position = { 0,0,0 };
+
+		std::string texture = "Resources/Images/Cat.png";
+		std::string name = "";
+		std::unordered_map<char, bool> inputInfo;
 
 	private:
-		std::string name = "";
+
 	};
 
 }

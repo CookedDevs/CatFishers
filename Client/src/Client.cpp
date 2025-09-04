@@ -2,6 +2,7 @@
 #include "Commands.h"
 #include "Player.h"
 #include "ClientCommands.h"
+#include "Game.h"
 
 void Client::Init()
 {
@@ -25,12 +26,13 @@ void Client::Init()
 
     /* Create a non-listening host using enet_host_create */
     /* Note we create a host using the same address family we resolved earlier */
-    clientHost = enet_host_create(address.type, NULL, 1, 2, 0, 0);
+    clientHost = enet_host_create(address.type, NULL, 1, 0, 0, 0);
     if (clientHost == NULL)
     {
         std::cerr << "An error occured while trying to create an ENet6 server host\n";
         exit(EXIT_FAILURE);
     }
+    enet_host_bandwidth_throttle(clientHost);
 
     /* Connect and user service */
     serverPeer = enet_host_connect(clientHost, &address, 2, 0);
@@ -49,10 +51,7 @@ void Client::Close()
 
 bool Client::Run()
 {
-    eventStatus = enet_host_service(clientHost, &event, 0);
-
-    /* Inspect events */
-    if (eventStatus > 0)
+    while(enet_host_service(clientHost, &event, 0) > 0)
     {
         switch (event.type)
         {
@@ -72,9 +71,32 @@ bool Client::Run()
                 recv.erase(0, 1);
                 ClientCommands::AddServerCommands(recv);
             }
-            else if (event.packet->data[0] == CatCore::ServerReceiveType::Data)
+            else if (event.packet->data[0] == CatCore::ServerReceiveType::PlayerData)
             {
+                players.clear();
+                char* buffer = (char*)event.packet->data;
+                unsigned int offset = 1;
 
+                uint8_t playerCount;
+                CatCore::ServerUtils::readFromBuffer(buffer, offset, &playerCount, sizeof(playerCount));
+
+                for (size_t i = 0; i < playerCount; i++)
+                {
+                    char* name = "";
+                    char* texture = "";
+                    CatCore::Vector3 position;
+
+                    CatCore::ServerUtils::readTextFromBuffer(buffer, offset, name);
+                    CatCore::ServerUtils::readTextFromBuffer(buffer, offset, texture);
+                    CatCore::ServerUtils::deserializeVector3(buffer, offset, position);
+
+                    CatCore::Player plr;
+                    plr.name = name;
+                    plr.texture = texture;
+                    plr.position = position;
+                    players.push_back(plr);
+                    playerTex = LoadedTextures::LoadTex(plr.texture);
+                }
             }
 
             break;
@@ -89,7 +111,7 @@ bool Client::Run()
             return EXIT_FAILURE;
         }
     }
-    else if (serverPeer->state == ENET_PEER_STATE_CONNECTED)
+    if (serverPeer->state == ENET_PEER_STATE_CONNECTED)
     {
 #ifndef __ANDROID__
         if (com.has_command())
@@ -111,6 +133,25 @@ bool Client::Run()
     }
 
     return true;
+}
+
+void Client::SendInputData(const std::unordered_map<char, bool> inputs)
+{
+    uint8_t sendType = (uint8_t)CatCore::ServerReceiveType::Data;
+
+    for (auto input : inputs)
+    {
+        std::vector<uint8_t> send;
+        send.push_back(sendType);
+        send.push_back(input.first);
+        send.push_back(input.second);
+
+        ENetPacket* packet = enet_packet_create(send.data(), send.size(), ENET_PACKET_FLAG_RELIABLE);
+        enet_peer_send(serverPeer, 0, packet);
+        enet_host_flush(clientHost);
+    }
+
+
 }
 
 void Client::PrintLine(std::string message)

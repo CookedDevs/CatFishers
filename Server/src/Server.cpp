@@ -2,6 +2,11 @@
 #include <iostream>
 #include <CatCore.h>
 
+#include <chrono>
+#include <thread>
+
+#include <nlohmann/json.hpp>
+
 #include "ServerCommands.h"
 
 void Server::Init()
@@ -36,6 +41,8 @@ void Server::Init()
     else
         std::cout << "ENet server host started\n\n\n";
 
+    enet_host_bandwidth_throttle(serverHost);
+
     /* Connect and user service */
     eventStatus = 1;
 }
@@ -47,8 +54,8 @@ void Server::Close()
 
 bool Server::Run()
 {
-    eventStatus = enet_host_service(serverHost, &event, 100);
-    
+    eventStatus = enet_host_service(serverHost, &event, 1);
+     
     /* If we had some event that interested us */
     if (eventStatus > 0)
     {
@@ -58,12 +65,12 @@ bool Server::Run()
         {
             enet_address_get_host_ip(&event.peer->address, addressBuffer, ENET_ADDRESS_MAX_LENGTH);
             std::cout << "New connection : " << addressBuffer << "\n";
-            AddPlayer(CatCore::Player(), event.peer->connectID);
+            AddPlayer(CatCore::Player(), event.peer);
             ServerCommands::SendCommandInfo(event.peer);
 
             break;
         }
-    
+
         case ENET_EVENT_TYPE_RECEIVE:
 
             if (event.packet->data[0] == CatCore::ServerReceiveType::Message)
@@ -77,12 +84,12 @@ bool Server::Run()
                     break;
                 }
 
-                if (GetPlayer(event.peer->connectID).getName() != "")
+                if (GetPlayer(event.peer)->name != "")
                 {
-                    CatCore::Player player = GetPlayer(event.peer->connectID);
+                    CatCore::Player& player = *GetPlayer(event.peer);
 
-                    std::cout << "(" << player.getName() << ") : " << event.packet->data << "\n";
-                    BroadcastMessage("(" + player.getName() + ") : " + (const char*)event.packet->data);
+                    std::cout << "(" << player.name << ") : " << event.packet->data << "\n";
+                    BroadcastMessage("(" + player.name + ") : " + (const char*)event.packet->data);
                     enet_packet_destroy(event.packet);
                 }
                 else
@@ -92,7 +99,16 @@ bool Server::Run()
             }
             else if (event.packet->data[0] == CatCore::ServerReceiveType::Data)
             {
-                //if sent data;
+                std::vector<char> inputs;
+                inputs.resize(event.packet->dataLength - 1);
+                for (size_t i = 1; i < event.packet->dataLength; i++)
+                    inputs[i - 1] = event.packet->data[i];
+
+                if (inputs.size() >= 2)
+                {
+                    std::cout << inputs[0] << " Is : " << (bool)inputs[1] << "\n";
+                    GetPlayer(event.peer)->inputInfo[inputs[0]] = inputs[1];
+                }
             }
             break;
 
@@ -106,7 +122,55 @@ bool Server::Run()
         }
     }
 
+    for (auto& player : players)
+    {
+        if (player.second.inputInfo['A'])
+            player.second.position.x -= 1.f;
+        if (player.second.inputInfo['D'])
+            player.second.position.x += 1.f;
+        if (player.second.inputInfo['W'])
+            player.second.position.y -= 1.f;
+        if (player.second.inputInfo['S'])
+            player.second.position.y += 1.f;
+    }
+
+    SendPlayers();
+    enet_host_flush(serverHost);
     return true;
+}
+
+void Server::SendPlayers()
+{
+    const size_t bufferSize = 8192;
+    char buffer[bufferSize];
+    unsigned int offset = 0;
+
+    uint8_t messageType = CatCore::PlayerData;
+    CatCore::ServerUtils::writeToBuffer(buffer, offset, &messageType, sizeof(messageType));
+
+    uint8_t playerCount = players.size();
+    CatCore::ServerUtils::writeToBuffer(buffer, offset, &playerCount, sizeof(playerCount));
+
+    for (auto player : players)
+    {
+        CatCore::ServerUtils::writeToBuffer(buffer, offset, player.second.name.c_str());
+        CatCore::ServerUtils::writeToBuffer(buffer, offset, player.second.texture.c_str());
+        CatCore::ServerUtils::serializeVector3(buffer, offset, player.second.position);
+    }
+
+    ENetPacket* packet = enet_packet_create(buffer, offset, ENET_PACKET_FLAG_RELIABLE);
+    enet_host_broadcast(serverHost, 1, packet);
+}
+
+void Server::SendPlayerData(const std::vector<uint8_t> data)
+{
+    uint8_t sendType = (uint8_t)CatCore::ServerReceiveType::PlayerData;
+    std::vector<uint8_t> send;
+    send.push_back(sendType);
+    send.insert(send.end(), data.begin(), data.end());
+
+    ENetPacket* packet = enet_packet_create(send.data(), send.size() + 1, ENET_PACKET_FLAG_RELIABLE);
+    enet_host_broadcast(serverHost, 0, packet);
 }
 
 void Server::BroadcastMessage(const std::string message)
@@ -120,13 +184,19 @@ void Server::BroadcastMessage(const std::string message)
     enet_host_broadcast(serverHost, 0, packet);
 }
 
-void Server::BroadcastExludeMessage(ENetPeer* excludedReseiver, const std::string message)
+void Server::BroadcastExludeMessage(ENetPeer* excludedReseiver, const std::string message, CatCore::ServerReceiveType type)
 {
-    char sendType = CatCore::ServerReceiveType::Message;
+    char sendType = type;
     std::string send;
     send.push_back(sendType);
     send += message;
 
     ENetPacket* packet = enet_packet_create(send.c_str(), send.size() + 1, ENET_PACKET_FLAG_RELIABLE);
-    enet_host_broadcast(serverHost, 0, packet);
+    
+    for (auto player : players)
+    {
+        if (player.first == excludedReseiver)
+            continue;
+        enet_peer_send(player.first, 0, packet);
+    }
 }

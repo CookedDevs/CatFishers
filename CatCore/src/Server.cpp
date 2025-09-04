@@ -13,10 +13,10 @@ namespace CatCore
         enet_peer_send(receiver, 0, packet);
     }
 
-    void ServerUtils::SendData(ENetPeer* receiver, const std::vector<std::byte> data)
+    void ServerUtils::SendData(ENetPeer* receiver, const std::vector<uint8_t> data)
     {
-        std::byte sendType = (std::byte)CatCore::ServerReceiveType::Data;
-        std::vector<std::byte> send;
+        uint8_t sendType = (uint8_t)CatCore::ServerReceiveType::Data;
+        std::vector<uint8_t> send;
         send.push_back(sendType);
         send.insert(send.end(), data.begin(), data.end());
 
