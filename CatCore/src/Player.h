@@ -14,7 +14,7 @@ namespace CatCore
 
 		Vector3 position = { 0,0,0 };
 
-		std::string texture = "Resources/Images/Cat.png";
+		std::string texture = "Resources/Images/cat.png";
 		std::string name = "";
 		std::unordered_map<char, bool> inputInfo;
 
