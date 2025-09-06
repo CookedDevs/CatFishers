@@ -5,6 +5,7 @@ target("Client")
     if is_plat("android") then
         set_kind("shared")
         set_basename("main")
+        add_defines("_ANDROID_")
     else    
         set_kind("binary")
     end
@@ -26,6 +27,8 @@ target("Client")
 
     if not is_plat("android") then
         add_deps("commandline")
+    else
+        add_deps("raymoblib")
     end
 
 

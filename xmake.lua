@@ -8,6 +8,8 @@ includes("Libraries/raylib")
 
 if not is_plat("android") then
     includes("Libraries/commandline")
+else
+    includes("Libraries/raymob") 
 end
 
 add_requires("enet6", {system=false})
@@ -33,6 +35,7 @@ RES_DIR        = "res"
 BUILD_DIR      = "build_android"
 LIB_CLIENT     = path.join(JNI_LIBS_DIR, "$(TARGET_ARCH_ABI)/libmain.so")
 LIB_RAYLIB     = path.join(JNI_LIBS_DIR, "$(TARGET_ARCH_ABI)/libraylib.so")
+LIB_RAYMOB     = path.join(JNI_LIBS_DIR, "$(TARGET_ARCH_ABI)/libraymoblib.so")
 
 
 if is_plat("android") then
@@ -44,7 +47,10 @@ end
 -- --------------------
 includes("CatCore")
 includes("Client")
-includes("Server")
+
+if not is_plat("android") then
+    includes("Server")
+end
 
 task("package_apk")
     set_category("package")
@@ -165,34 +171,90 @@ task("package_apk")
         -- Generate NativeLoader.java
         local java_pkg_dir = path.join(projectdir, build_dir, "src", "com", "raylib", "catfishers")
 
-        -- Ensure AndroidManifest exists (create minimal if not)
-        local manifest_path = path.join(projectdir, build_dir, "AndroidManifest.xml")
-        if not os.isfile(manifest_path) then
-            local mf = io.open(manifest_path, "w")
-            mf:write('<?xml version="1.0" encoding="utf-8"?>\n')
-            mf:write(('<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="%s" android:versionCode="%d" android:versionName="%s">\n')
-                :format(app_package, app_versioncode, app_version))
-        
-            -- internet permission for ENet / network access
-            mf:write('  <uses-permission android:name="android.permission.INTERNET" />\n')
-            -- optional: if you want to query network state on device
-            -- mf:write('  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />\n')
-        
-            mf:write(('  <uses-sdk android:minSdkVersion="%d" android:targetSdkVersion="%d" />\n')
-                :format(min_sdk, target_sdk))
-            mf:write('  <uses-feature android:glEsVersion="0x00020000" android:required="true" />\n')
-            mf:write('  <application android:allowBackup="false" android:label="@string/app_name" android:icon="@drawable/icon">\n')
-            mf:write('    <activity android:name="com.raylib.catfishers.NativeLoader" android:theme="@android:style/Theme.NoTitleBar.Fullscreen" android:configChanges="orientation|keyboard|keyboardHidden|screenSize" android:screenOrientation="landscape" android:launchMode="singleTask" android:clearTaskOnLaunch="true" android:exported="true">\n')
-            mf:write('      <meta-data android:name="android.app.lib_name" android:value="main" />\n')
-            mf:write('      <intent-filter>\n')
-            mf:write('        <action android:name="android.intent.action.MAIN" />\n')
-            mf:write('        <category android:name="android.intent.category.LAUNCHER" />\n')
-            mf:write('      </intent-filter>\n')
-            mf:write('    </activity>\n')
-            mf:write('  </application>\n')
-            mf:write('</manifest>\n')
-            mf:close()
+
+        local android_dir = path.join(projectdir, "android")
+        local manifest_src = path.join(android_dir, "AndroidManifest.xml")
+        local manifest_path = path.join(projectdir, build_dir, "AndroidManifest.xml") -- default fallback (generated)
+
+        if os.isfile(manifest_src) then
+            os.cp(manifest_src, manifest_path)
+            print("Copied manifest :", manifest_src)
+        --else if not os.isfile(manifest_path) then
+        --    local mf = io.open(manifest_path, "w")
+        --    mf:write('<?xml version="1.0" encoding="utf-8"?>\n')
+        --    mf:write(('<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="%s" android:versionCode="%d" android:versionName="%s">\n')
+        --        :format(app_package, app_versioncode, app_version))
+        --
+        --    -- internet permission for ENet / network access
+        --    mf:write('  <uses-permission android:name="android.permission.INTERNET" />\n')
+        --    -- optional: if you want to query network state on device
+        --    -- mf:write('  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />\n')
+        --
+        --    mf:write(('  <uses-sdk android:minSdkVersion="%d" android:targetSdkVersion="%d" />\n')
+        --        :format(min_sdk, target_sdk))
+        --    mf:write('  <uses-feature android:glEsVersion="0x00020000" android:required="true" />\n')
+        --    mf:write('  <application android:allowBackup="false" android:label="@string/app_name" android:icon="@drawable/icon">\n')
+        --    mf:write('    <activity android:name="com.raylib.catfishers.NativeLoader" android:theme="@android:style/Theme.NoTitleBar.Fullscreen" android:windowSoftInputMode="stateAlwaysVisible" android:configChanges="orientation|screenSize" android:screenOrientation="landscape" android:launchMode="singleTask" android:clearTaskOnLaunch="true" android:exported="true">\n')
+        --    mf:write('      <meta-data android:name="android.app.lib_name" android:value="main" />\n')
+        --    mf:write('      <intent-filter>\n')
+        --    mf:write('        <action android:name="android.intent.action.MAIN" />\n')
+        --    mf:write('        <category android:name="android.intent.category.LAUNCHER" />\n')
+        --    mf:write('      </intent-filter>\n')
+        --    mf:write('    </activity>\n')
+        --    mf:write('  </application>\n')
+        --    mf:write('</manifest>\n')
+        --    mf:close()
         end
+
+
+        local android_res_src = path.join(android_dir, "res")
+        if os.isdir(android_res_src) then
+            -- copy everything under android/res into apk_build_res
+            os.cp(path.join(android_res_src, "*"), apk_build_res)
+            print("Copied user resources from:", android_res_src, "->", apk_build_res)
+        --else
+        --    -- ensure res/values/strings.xml (same as before)
+        --    local values_dir = path.join(apk_build_res, "values")
+        --    os.mkdir(values_dir)
+        --    local sx = io.open(path.join(values_dir, "strings.xml"), "w")
+        --    sx:write('<?xml version="1.0" encoding="utf-8"?>\n<resources>\n')
+        --    sx:write(("  <string name=\"app_name\">%s</string>\n"):format(app_name))
+        --    sx:write('</resources>\n')
+        --    sx:close()
+--
+        --    -- create layout dir and a minimal layout with EditText if none provided
+        --    local layout_dir = path.join(apk_build_res, "layout")
+        --    os.mkdir(layout_dir)
+        --    local layout_path = path.join(layout_dir, "activity_main.xml")
+        --    if not os.isfile(layout_path) then
+        --        local lf = io.open(layout_path, "w")
+        --        lf:write('<?xml version="1.0" encoding="utf-8"?>\n')
+        --        lf:write([[
+        --        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        --            android:id="@+id/myLayout"
+        --            android:orientation="vertical"
+        --            android:layout_width="match_parent"
+        --            android:layout_height="match_parent"
+        --            android:focusable="true"
+        --            android:focusableInTouchMode="true">
+        --                    
+        --            <EditText
+        --                android:id="@+id/editText"
+        --                android:layout_width="match_parent"
+        --                android:layout_height="wrap_content"
+        --                android:hint="Type here"
+        --                android:focusable="true"
+        --                android:focusableInTouchMode="true">
+        --                <requestFocus/>
+        --            </EditText>
+        --                    
+        --        </LinearLayout>
+        --        ]])
+        --        lf:close()
+        --        print("Wrote fallback layout:", layout_path)
+        --    end
+        end
+
 
         -- copy libmain.so into build_dir/lib/<abi>/
         local built_lib = path.join(projectdir, "build", "android", abi, "release", "libmain.so")
