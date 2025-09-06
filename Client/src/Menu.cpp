@@ -1,4 +1,5 @@
 #include "Menu.h"
+#include "AndroidInput.h"
 #include <vector>
 
 const int screenWidth = 800;
@@ -78,6 +79,7 @@ static void UpdateTextfield(Textfield &txtfld) {
         txtfld.focused = true;
     } else if (!hovered && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
         txtfld.focused = false;
+        AndroidInput::HideSoftKeyboard();
     }
 
     if (txtfld.focused) {
@@ -111,6 +113,7 @@ static void UpdateTextfield(Textfield &txtfld) {
 
     if (txtfld.focused) {
         txtfld.state = 3;
+        AndroidInput::ShowAndroidKeyboard();
     } else if (hovered && txtfld.text.empty()) {
         txtfld.state = 1;
     } else if (!txtfld.text.empty()) {
