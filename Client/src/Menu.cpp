@@ -1,12 +1,5 @@
 #include "Menu.h"
-#include <iostream>
-#include <raylib.h>
-#include <math.h>
-#include <functional>
 #include <vector>
-
-#define NUM_FRAMES  3 
-#define NUM_FRAMES_TEXTFIELD  4
 
 const int screenWidth = 800;
 const int screenHeight = 450;
@@ -25,7 +18,6 @@ static Textfield playerNamepTxtField;
 
 Font TextFont;
 
-
 static std::vector<Button*> buttons;
 static std::vector<Textfield*> textfields;
 
@@ -33,6 +25,7 @@ void Menu::UnInit()
 {
     for (auto b : buttons)UnloadTexture(b->texture);
     for (auto b : textfields)UnloadTexture(b->texture);
+    Client::Close();
 }
 
 std::string Menu::GetName() { return "Menu"; }
@@ -48,6 +41,7 @@ static void InitButton(Button &btn, const char* path, Vector2 pos, float scale, 
     btn.state = 0;
     buttons.push_back(&btn);
 }
+
 static void InitTextfield(Textfield &txtfld, const char* path, Vector2 pos, float scale, bool enabled) {
     txtfld.texture = LoadTexture(path);
     txtfld.frameHeight = (float)txtfld.texture.height / NUM_FRAMES_TEXTFIELD;
@@ -75,6 +69,7 @@ static void UpdateButton(Button &btn) {
 
     btn.sourceRec.y = btn.state * btn.frameHeight;
 }
+
 static void UpdateTextfield(Textfield &txtfld) {
     mousePoint = GetMousePosition();
 
@@ -93,12 +88,25 @@ static void UpdateTextfield(Textfield &txtfld) {
             }
             key = GetCharPressed();
         }
+
         if (IsKeyPressed(KEY_BACKSPACE) && !txtfld.text.empty()) {
             txtfld.text.pop_back();
         }
+
         if (IsKeyPressed(KEY_ENTER)) {
             txtfld.focused = false;
         }
+
+        if ((IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL)) && IsKeyPressed(KEY_C)) {
+            SetClipboardText(txtfld.text.c_str());
+        }
+
+        if ((IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL)) && IsKeyPressed(KEY_V)) {
+            const char* clipText = GetClipboardText();
+            if (clipText) {
+                txtfld.text += clipText;
+            }
+        }  
     }
 
     if (txtfld.focused) {
@@ -114,10 +122,10 @@ static void UpdateTextfield(Textfield &txtfld) {
     txtfld.sourceRec.y = txtfld.state * txtfld.frameHeight;
 }
 
-
 static void DrawButton(const Button &btn) {
     DrawTexturePro(btn.texture, btn.sourceRec, btn.bounds, Vector2{0, 0}, 0.0f, WHITE);
 }
+
 static void DrawTextfield(const Textfield &txtfld) {
     DrawTexturePro(txtfld.texture, txtfld.sourceRec, txtfld.bounds, Vector2{0, 0}, 0.0f, WHITE);
 
@@ -150,15 +158,11 @@ static void DrawTextfield(const Textfield &txtfld) {
     }
 }
 
-
-
 void Menu::Init()
 {
     camera.target = Vector2{ 0.0f, 0.0f };
 
     TextFont = LoadFontEx("Resources/fredoka-one.ttf", 100, nullptr, 0);
-
-
     InitButton(newGameBtn,  "Resources/Images/newgame.png",  { screenWidth/2.0f, screenHeight/2.0f - 110 }, 0.5f , true);
     InitButton(joinGameBtn, "Resources/Images/joingame.png", { screenWidth/2.0f, screenHeight/2.0f - 50  }, 0.5f , true);
     InitButton(settingsBtn, "Resources/Images/settings.png", { screenWidth/2.0f, screenHeight/2.0f + 10  }, 0.5f , true);
@@ -179,7 +183,10 @@ void Menu::Init()
         newGameBtn.enabled = false;
     };
     settingsBtn.onClick = []() { std::cout << "Opening settings...\n"; };
-    playBtn.onClick = []() { std::cout << "Playing..\n"; };
+    playBtn.onClick = []() {
+        Client::SetIp(serverIpTxtField.text);
+        Client::Init();
+    };
     backBtn.onClick = []() { 
         serverIpTxtField.text = playerNamepTxtField.text = "";        
         playBtn.enabled = false;
@@ -191,10 +198,16 @@ void Menu::Init()
         newGameBtn.enabled = true;
 
     };
+
+    Client::onConnected = []() {
+        CatCore::ServerUtils::SendMessage(Client::GetPeer(), "!name " + playerNamepTxtField.text);
+        CurrentState::SetState(new Game);
+    };
 }
 
 void Menu::Update()
 {
+    Client::Run();
     timeValue += GetFrameTime();
     for (auto* b : buttons) if (b->enabled) UpdateButton(*b);
     for (auto* t : textfields) if (t->enabled) UpdateTextfield(*t);

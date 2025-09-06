@@ -1,6 +1,7 @@
 #pragma once
 #include "State.h"
 #include "Player.h"
+#include "Menu.h"
 #include "ResourceManager.h"
 #include <iostream>
 
@@ -16,7 +17,7 @@ public:
 	std::string GetName() override;
 
 private:
-
+	bool disconnected = false;
 	void SetKey(const char key);
 	std::unordered_map<char, bool> inputs;
 	std::unordered_map<char, bool> changedInputs;

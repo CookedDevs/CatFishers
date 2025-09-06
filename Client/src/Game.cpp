@@ -18,6 +18,11 @@ void Game::Init()
     //Client::playerTex = LoadedTextures::LoadTex(plr.texture);
     //player = plr;
 
+    Client::onDisconnected = [this](const std::string& reason) {
+        std::cout << reason << "\n";
+        Game::disconnected = true;
+        CurrentState::SetState(new Menu);
+    };
 }
 
 void Game::SetKey(const char key)
@@ -36,6 +41,8 @@ void Game::SetKey(const char key)
 
 void Game::Update()
 {
+    Client::Run();
+    if (disconnected) return;
     //SetTargetFPS(20);
     changedInputs.clear();
     SetKey('A'); SetKey('D');
