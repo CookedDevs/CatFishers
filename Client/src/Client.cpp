@@ -4,6 +4,10 @@
 #include "ClientCommands.h"
 #include "Game.h"
 
+std::function<void()> Client::onConnected = nullptr;
+std::function<void(const std::string&)> Client::onDisconnected = nullptr;
+
+
 void Client::Init()
 {
     ClientCommands::InitializeCommands();
@@ -18,7 +22,7 @@ void Client::Init()
     atexit(enet_deinitialize);
 
     /* Build an IPv6 or IPv4 address, depending on what the domain resolves to */
-    enet_address_set_host(&address, ENET_ADDRESS_TYPE_ANY, "localhost");
+    enet_address_set_host(&address, ENET_ADDRESS_TYPE_ANY, serverIp.c_str());
     address.port = 1234;
 
     enet_address_get_host_ip(&address, addressBuffer, ENET_ADDRESS_MAX_LENGTH);
@@ -51,27 +55,30 @@ void Client::Close()
 
 bool Client::Run()
 {
+    if (!clientHost) {return false;}
+    
     while(enet_host_service(clientHost, &event, 0) > 0)
     {
         switch (event.type)
         {
         case ENET_EVENT_TYPE_CONNECT:
             std::cout << "\nConnected to server!" << addressBuffer << "\n\n";
+            Client::onConnected();
             break;
 
         case ENET_EVENT_TYPE_RECEIVE:
-            if (event.packet->data[0] == CatCore::ServerReceiveType::Message)
+            if (event.packet && event.packet &&event.packet->data[0] == CatCore::ServerReceiveType::Message)
             {
                 std::cout << event.packet->data << "\n";
                 enet_packet_destroy(event.packet);
             }
-            else if (event.packet->data[0] == CatCore::ServerReceiveType::CommandData)
+            else if (event.packet && event.packet->data[0] == CatCore::ServerReceiveType::CommandData)
             {
                 std::string recv = (const char*)event.packet->data;
                 recv.erase(0, 1);
                 ClientCommands::AddServerCommands(recv);
             }
-            else if (event.packet->data[0] == CatCore::ServerReceiveType::PlayerData)
+            else if (event.packet && event.packet->data[0] == CatCore::ServerReceiveType::PlayerData)
             {
                 players.clear();
                 char* buffer = (char*)event.packet->data;
@@ -102,16 +109,24 @@ bool Client::Run()
             break;
 
         case ENET_EVENT_TYPE_DISCONNECT:
-            std::cout << "Disconnected from server!\n";
+            if (event.peer == serverPeer) {
+                enet_peer_reset(serverPeer);
+                serverPeer = nullptr;
+            }
             ClientCommands::ClearServerCommands();
+            Client::onDisconnected("Disconnected from server!");
             return EXIT_SUCCESS;
 
         case ENET_EVENT_TYPE_DISCONNECT_TIMEOUT:
-            std::cout << "Disconnected from server (timed out)!\n";
+            if (event.peer == serverPeer) {
+                enet_peer_reset(serverPeer);
+                serverPeer = nullptr;
+            }
+            Client::onDisconnected("Disconnected from server (timed out)!");
             return EXIT_FAILURE;
         }
     }
-    if (serverPeer->state == ENET_PEER_STATE_CONNECTED)
+    if (serverPeer && serverPeer->state == ENET_PEER_STATE_CONNECTED)
     {
 #ifndef __ANDROID__
         if (com.has_command())
@@ -122,7 +137,7 @@ bool Client::Run()
             {
                 running = 0;
                 enet_peer_disconnect_now(serverPeer, 0);
-                std::cout << "\nDisconnected from server!\n";
+                Client::onDisconnected("\nDisconnected from server!\n");
             }
             else
             {
@@ -137,6 +152,8 @@ bool Client::Run()
 
 void Client::SendInputData(const std::unordered_map<char, bool> inputs)
 {
+    if (!serverPeer || serverPeer->state != ENET_PEER_STATE_CONNECTED) return;
+
     uint8_t sendType = (uint8_t)CatCore::ServerReceiveType::Data;
 
     for (auto input : inputs)
@@ -151,8 +168,9 @@ void Client::SendInputData(const std::unordered_map<char, bool> inputs)
         enet_host_flush(clientHost);
     }
 
-
+    enet_host_flush(clientHost);
 }
+
 
 void Client::PrintLine(std::string message)
 {

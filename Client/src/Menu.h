@@ -1,8 +1,17 @@
 #pragma once
 #include "State.h"
-#include <raylib.h>
+#include "Client.h"
+#include "Game.h"
+#include "ServerUtils.h"
 #include <string>
 #include <functional>
+#include <condition_variable>
+#include <iostream>
+#include <raylib.h>
+#include <math.h>
+
+#define NUM_FRAMES  3 
+#define NUM_FRAMES_TEXTFIELD  4
 
 struct Button {
     Texture2D texture;
@@ -24,6 +33,7 @@ struct Textfield {
     bool enabled = true;
     std::string text;
 };
+
 
 
 class Menu : public State

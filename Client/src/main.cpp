@@ -12,17 +12,11 @@ const int screenHeight = 450;
 
 int main()
 {
-    Client::Init();
     InitWindow(screenWidth, screenHeight, "CatFishers");
 
     CurrentState::SetState(new Menu);
     while (!WindowShouldClose())
     {
-        Client::Run();
-
-        if (IsKeyPressed(KEY_M)) {
-            CurrentState::SetState(new Game);
-        }
         CurrentState::UpdateState();
     }
 
