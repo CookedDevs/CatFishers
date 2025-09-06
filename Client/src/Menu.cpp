@@ -79,10 +79,15 @@ static void UpdateTextfield(Textfield &txtfld) {
         txtfld.focused = true;
     } else if (!hovered && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
         txtfld.focused = false;
-        AndroidInput::HideSoftKeyboard();
     }
 
     if (txtfld.focused) {
+
+        // Maybe make this better or sum
+        txtfld.text.resize(10000);
+        AndroidInput::GetSoftKeyboardInput(txtfld.text, 10000);
+        DrawText(txtfld.text.c_str(), 150, 10, 25, WHITE);
+
         int key = GetCharPressed();
         while (key > 0) {
             if (key >= 32 && key <= 125) {
@@ -110,6 +115,8 @@ static void UpdateTextfield(Textfield &txtfld) {
             }
         }  
     }
+    else
+        AndroidInput::HideSoftKeyboard();
 
     if (txtfld.focused) {
         txtfld.state = 3;

@@ -11,6 +11,7 @@ class AndroidInput
 public:
 	static void ShowAndroidKeyboard();
 	static void HideSoftKeyboard();
+	static void GetSoftKeyboardInput(std::string& input, unsigned int size);
 private:
 
 };
