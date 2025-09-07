@@ -6,7 +6,9 @@ CatFishers is a multiplayer cat fishing game
   [`android`](#build-android)
 
 # Libraries
-- Raylib
+- raylib
+- raymob
+- [commandline](https://github.com/lionkor/commandline)
 - enet6
 
 # Building
