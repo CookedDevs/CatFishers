@@ -101,7 +101,7 @@ jobs:
       uses: nttld/setup-ndk@v1
       id: setup-ndk
       with:
-        ndk-version: r21d
+        ndk-version: r27
         add-to-path: false
 
     - name: Export NDK path
