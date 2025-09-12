@@ -83,10 +83,12 @@ static void UpdateTextfield(Textfield &txtfld) {
 
     if (txtfld.focused) {
 
+#ifdef _ANDROID_
         // Maybe make this better or sum
         txtfld.text.resize(10000);
         AndroidInput::GetSoftKeyboardInput(txtfld.text, 10000);
         DrawText(txtfld.text.c_str(), 150, 10, 25, WHITE);
+#endif // _ANDROID_
 
         int key = GetCharPressed();
         while (key > 0) {
