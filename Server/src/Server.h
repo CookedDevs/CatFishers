@@ -7,6 +7,7 @@
 
 #include "ServerUtils.h"
 #include "Player.h"
+#include "Sprite.h"
 
 class Server
 {
@@ -17,6 +18,7 @@ public:
 
 	static void BroadcastMessage(const std::string message);
 	static void SendPlayers();
+	static void SendScene();
 	static void SendPlayerData(const std::vector<uint8_t> data);
 	static void BroadcastExludeMessage(ENetPeer* excludedReseiver, const std::string message, CatCore::ServerReceiveType type);
 
@@ -38,5 +40,6 @@ private:
 	static inline char addressBuffer[ENET_ADDRESS_MAX_LENGTH];
 
 	static inline std::unordered_map<ENetPeer*, CatCore::Player> players;
+	static inline std::vector<CatCore::Sprite> sprites;
 };
 

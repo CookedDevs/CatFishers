@@ -97,12 +97,40 @@ bool Client::Run()
                     CatCore::ServerUtils::readTextFromBuffer(buffer, offset, texture);
                     CatCore::ServerUtils::deserializeVector3(buffer, offset, position);
 
-                    CatCore::Player plr;
-                    plr.name = name;
-                    plr.texture = texture;
-                    plr.position = position;
-                    players.push_back(plr);
-                    playerTex = LoadedTextures::LoadTex(plr.texture);
+                    CatCore::Player player;
+                    player.name = name;
+                    player.texture = texture;
+                    player.position = position;
+                    players[LoadedTextures::LoadTex(player.texture)] = player;
+                }
+            }
+            else if (event.packet && event.packet->data[0] == CatCore::ServerReceiveType::Data)
+            {
+                sprites.clear();
+                char* buffer = (char*)event.packet->data;
+                unsigned int offset = 1;
+
+                uint8_t spriteCount;
+                CatCore::ServerUtils::readFromBuffer(buffer, offset, &spriteCount, sizeof(spriteCount));
+
+                for (size_t i = 0; i < spriteCount; i++)
+                {
+                    char* texture = "";
+                    CatCore::Vector3 position;
+                    float rotation;
+                    float size;
+
+                    CatCore::ServerUtils::readTextFromBuffer(buffer, offset, texture);
+                    CatCore::ServerUtils::deserializeVector3(buffer, offset, position);
+                    CatCore::ServerUtils::readFromBuffer(buffer, offset, &rotation, sizeof(rotation));
+                    CatCore::ServerUtils::readFromBuffer(buffer, offset, &size, sizeof(size));
+
+                    CatCore::Sprite sprite;
+                    sprite.texture = texture;
+                    sprite.position = position;
+                    sprite.rotation = rotation;
+                    sprite.size = size;
+                    sprites[LoadedTextures::LoadTex(sprite.texture)] = sprite;
                 }
             }
 
