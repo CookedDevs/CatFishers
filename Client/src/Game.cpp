@@ -64,7 +64,7 @@ void Game::Update()
     EndMode2D();
 
     for (CatCore::Player player : Client::players)
-        DrawTexture(*Client::playerTex, player.position.x, player.position.y, WHITE);
+        DrawTextureEx(*Client::playerTex, {player.position.x, player.position.y}, 0, 0.1f, WHITE);
 
 #ifdef _ANDROID_
     Vector2 circlePosition = { 110.f, (float)GetScreenHeight() - 110.f };
