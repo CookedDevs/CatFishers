@@ -115,21 +115,8 @@ bool Client::Run()
 
                 for (size_t i = 0; i < spriteCount; i++)
                 {
-                    char* texture = "";
-                    CatCore::Vector3 position;
-                    float rotation;
-                    float size;
-
-                    CatCore::ServerUtils::readTextFromBuffer(buffer, offset, texture);
-                    CatCore::ServerUtils::deserializeVector3(buffer, offset, position);
-                    CatCore::ServerUtils::readFromBuffer(buffer, offset, &rotation, sizeof(rotation));
-                    CatCore::ServerUtils::readFromBuffer(buffer, offset, &size, sizeof(size));
-
                     CatCore::Sprite sprite;
-                    sprite.texture = texture;
-                    sprite.position = position;
-                    sprite.rotation = rotation;
-                    sprite.size = size;
+                    sprite.DeSerialize(buffer, offset);
                     sprites[LoadedTextures::LoadTex(sprite.texture)] = sprite;
                 }
             }

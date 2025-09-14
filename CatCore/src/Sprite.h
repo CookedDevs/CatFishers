@@ -12,6 +12,9 @@ namespace CatCore
 		Sprite();
 		~Sprite();
 
+		virtual void serialize(char* buffer, unsigned int& offset);
+		virtual void DeSerialize(const char* buffer, unsigned int& offset);
+
 		Vector3 position = { 0,0,0 };
 		float rotation = 0.f;
 		float size = 0.1f;

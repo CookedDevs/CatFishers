@@ -183,12 +183,7 @@ void Server::SendScene()
     CatCore::ServerUtils::writeToBuffer(buffer, offset, &spriteCount, sizeof(spriteCount));
 
     for (auto sprite : sprites)
-    {
-        CatCore::ServerUtils::writeToBuffer(buffer, offset, sprite.texture.c_str());
-        CatCore::ServerUtils::serializeVector3(buffer, offset, sprite.position);
-        CatCore::ServerUtils::writeToBuffer(buffer, offset, &sprite.rotation, sizeof(sprite.rotation));
-        CatCore::ServerUtils::writeToBuffer(buffer, offset, &sprite.size, sizeof(sprite.size));
-    }
+        sprite.serialize(buffer, offset);
 
     ENetPacket* packet = enet_packet_create(buffer, offset, ENET_PACKET_FLAG_RELIABLE);
     enet_host_broadcast(serverHost, 1, packet);
