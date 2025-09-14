@@ -32,8 +32,15 @@ public:
 			return nullptr;
 	}
 
-	static std::vector<CatCore::Sprite>& GetSprites() { return sprites; }
-	static const void AddSprite(CatCore::Sprite sprite) { sprites.push_back(sprite); }
+	static std::unordered_map<std::string, CatCore::Sprite>& GetSprites() { return sprites; }
+	static const void AddSprite(CatCore::Sprite sprite, std::string id) { sprites[id] = sprite; }
+	static CatCore::Sprite* GetSprite(std::string id)
+	{
+		if (sprites.find(id) != sprites.end())
+			return &sprites[id];
+		else
+			return nullptr;
+	}
 
 private:
 	static inline ENetAddress address;
@@ -43,6 +50,6 @@ private:
 	static inline char addressBuffer[ENET_ADDRESS_MAX_LENGTH];
 
 	static inline std::unordered_map<ENetPeer*, CatCore::Player> players;
-	static inline std::vector<CatCore::Sprite> sprites;
+	static inline std::unordered_map<std::string, CatCore::Sprite> sprites;
 };
 
