@@ -27,6 +27,7 @@ public:
 	static void SetIp(std::string ip){ serverIp = ip;}
 
 	static void SendInputData(const std::unordered_map<char, bool> input);
+	static void SendFuncId(const uint16_t id);
 	static ENetPeer* GetPeer(){return serverPeer;}
 
 	static inline std::unordered_map<Texture2D*, CatCore::Player> players;

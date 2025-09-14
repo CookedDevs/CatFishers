@@ -1,6 +1,7 @@
 #include "Game.h"
 #include "Player.h"
 #include "Client.h"
+#include "AndroidInput.h"
 
 void Game::UnInit()
 {
@@ -73,52 +74,15 @@ void Game::Update()
     BeginMode2D(camera);
     EndMode2D();
 
+    //Client::SendFuncId(1);
+
     for (auto player : Client::players)
         DrawTextureEx(*player.first, {player.second.position.x, player.second.position.y}, 0, 0.1f, WHITE);
 
     for (auto sprite : Client::sprites)
         DrawTextureEx(*sprite.first, { sprite.second.position.x, sprite.second.position.y }, sprite.second.rotation, sprite.second.size, WHITE);
 
-#ifdef _ANDROID_
-    Vector2 circlePosition = { 110.f, (float)GetScreenHeight() - 110.f };
-    float biggerRadius = 70.f;
-
-    Vector2 smallerCirclePosition = { 110.f, (float)GetScreenHeight() - 110.f };
-    float smallerRadius = 30.f;
-
-    float angle = 0.0f;
-    float dx = 0.0f, dy = 0.0f, dxx = 0.0f, dyy = 0.0f;
-
-    smallerCirclePosition = GetMousePosition();
-
-    if (!CheckCollisionPointCircle(smallerCirclePosition, circlePosition, biggerRadius) && GetTouchPointCount() > 0)
-    {
-        dx = smallerCirclePosition.x - circlePosition.x;
-        dy = smallerCirclePosition.y - circlePosition.y;
-
-        angle = atan2f(dy, dx);
-
-        dxx = (biggerRadius) * cosf(angle);
-        dyy = (biggerRadius) * sinf(angle);
-
-        smallerCirclePosition.x = circlePosition.x + dxx;
-        smallerCirclePosition.y = circlePosition.y + dyy;
-    }
-    else
-    {
-        smallerCirclePosition = { 110.f, (float)GetScreenHeight() - 110.f };
-    }
-
-    unsigned int deadZoneSize = 14;
-
-    if (smallerCirclePosition.x <= circlePosition.x - deadZoneSize) SetKey('A', true); else SetKey('A', false);
-    if (smallerCirclePosition.x >= circlePosition.x + deadZoneSize) SetKey('D', true); else SetKey('D', false);
-    if (smallerCirclePosition.y <= circlePosition.y - deadZoneSize) SetKey('W', true); else SetKey('W', false);
-    if (smallerCirclePosition.y >= circlePosition.y + deadZoneSize) SetKey('S', true); else SetKey('S', false);
-
-    DrawCircleV(circlePosition, biggerRadius, LIGHTGRAY);
-    DrawCircleV(smallerCirclePosition, smallerRadius, RED);
-#endif
+    AndroidInput::Joystick();
     Client::SendInputData(changedInputs);
 
     DrawFPS(10, 10);

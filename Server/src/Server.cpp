@@ -52,6 +52,11 @@ void Server::Close()
     enet_host_destroy(serverHost);
 }
 
+void TestFunc()
+{
+    std::cout << "Test";
+}
+
 bool Server::Run()
 {
     eventStatus = enet_host_service(serverHost, &event, 8);
@@ -108,6 +113,21 @@ bool Server::Run()
                 {
                     std::cout << inputs[0] << " Is : " << (bool)inputs[1] << "\n";
                     GetPlayer(event.peer)->inputInfo[inputs[0]] = inputs[1];
+                }
+            }
+            else if (event.packet->data[0] == CatCore::ServerReceiveType::Function)
+            {
+                char* buffer = (char*)event.packet->data;
+                unsigned int offset = 1;
+
+                uint16_t funcId;
+                CatCore::ServerUtils::readFromBuffer(buffer, offset, &funcId, sizeof(funcId));
+                
+                switch (funcId)
+                {
+                case 1:
+                    TestFunc();
+                    break;
                 }
             }
             break;
@@ -177,7 +197,7 @@ void Server::SendScene()
     CatCore::ServerUtils::writeToBuffer(buffer, offset, &spriteCount, sizeof(spriteCount));
 
     for (auto sprite : sprites)
-        sprite.serialize(buffer, offset);
+        sprite.second.serialize(buffer, offset);
 
     ENetPacket* packet = enet_packet_create(buffer, offset, ENET_PACKET_FLAG_RELIABLE);
     enet_host_broadcast(serverHost, 1, packet);

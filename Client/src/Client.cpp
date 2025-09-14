@@ -186,6 +186,21 @@ void Client::SendInputData(const std::unordered_map<char, bool> inputs)
     enet_host_flush(clientHost);
 }
 
+void Client::SendFuncId(const uint16_t id)
+{
+    const size_t bufferSize = sizeof(uint8_t) + sizeof(uint16_t);
+    char buffer[bufferSize];
+    unsigned int offset = 0;
+
+    uint8_t messageType = CatCore::Function;
+    CatCore::ServerUtils::writeToBuffer(buffer, offset, &messageType, sizeof(messageType));
+    CatCore::ServerUtils::writeToBuffer(buffer, offset, &id, sizeof(id));
+
+    ENetPacket* packet = enet_packet_create(buffer, offset, ENET_PACKET_FLAG_RELIABLE);
+    enet_peer_send(serverPeer, 0, packet);
+    enet_host_flush(clientHost);
+}
+
 
 void Client::PrintLine(std::string message)
 {
