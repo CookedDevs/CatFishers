@@ -97,12 +97,27 @@ bool Client::Run()
                     CatCore::ServerUtils::readTextFromBuffer(buffer, offset, texture);
                     CatCore::ServerUtils::deserializeVector3(buffer, offset, position);
 
-                    CatCore::Player plr;
-                    plr.name = name;
-                    plr.texture = texture;
-                    plr.position = position;
-                    players.push_back(plr);
-                    playerTex = LoadedTextures::LoadTex(plr.texture);
+                    CatCore::Player player;
+                    player.name = name;
+                    player.texture = texture;
+                    player.position = position;
+                    players[LoadedTextures::LoadTex(player.texture)] = player;
+                }
+            }
+            else if (event.packet && event.packet->data[0] == CatCore::ServerReceiveType::Data)
+            {
+                sprites.clear();
+                char* buffer = (char*)event.packet->data;
+                unsigned int offset = 1;
+
+                uint8_t spriteCount;
+                CatCore::ServerUtils::readFromBuffer(buffer, offset, &spriteCount, sizeof(spriteCount));
+
+                for (size_t i = 0; i < spriteCount; i++)
+                {
+                    CatCore::Sprite sprite;
+                    sprite.DeSerialize(buffer, offset);
+                    sprites[LoadedTextures::LoadTex(sprite.texture)] = sprite;
                 }
             }
 

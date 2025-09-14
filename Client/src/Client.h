@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <map>
 #include <functional>
 
 #include <raylib.h>
@@ -13,6 +14,8 @@
 #endif
 
 #include "ServerUtils.h"
+#include "Sprite.h"
+
 
 class Client
 {
@@ -26,8 +29,8 @@ public:
 	static void SendInputData(const std::unordered_map<char, bool> input);
 	static ENetPeer* GetPeer(){return serverPeer;}
 
-	static inline std::vector<CatCore::Player> players;
-	static inline Texture2D* playerTex;
+	static inline std::unordered_map<Texture2D*, CatCore::Player> players;
+	static inline std::unordered_map<Texture2D*, CatCore::Sprite> sprites;
 
 	static std::function<void()> onConnected;
 	static std::function<void(const std::string&)> onDisconnected;

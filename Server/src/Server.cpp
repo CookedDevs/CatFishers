@@ -45,6 +45,12 @@ void Server::Init()
 
     /* Connect and user service */
     eventStatus = 1;
+
+    CatCore::Sprite sprite;
+    sprite.position = { 1,1,0 };
+    sprite.rotation = 0;
+    sprite.size = 0.1;
+    sprites.push_back(sprite);
 }
 
 void Server::Close()
@@ -135,6 +141,8 @@ bool Server::Run()
     }
 
     SendPlayers();
+    SendScene();
+
     enet_host_flush(serverHost);
     return true;
 }
@@ -157,6 +165,25 @@ void Server::SendPlayers()
         CatCore::ServerUtils::writeToBuffer(buffer, offset, player.second.texture.c_str());
         CatCore::ServerUtils::serializeVector3(buffer, offset, player.second.position);
     }
+
+    ENetPacket* packet = enet_packet_create(buffer, offset, ENET_PACKET_FLAG_RELIABLE);
+    enet_host_broadcast(serverHost, 1, packet);
+}
+
+void Server::SendScene()
+{
+    const size_t bufferSize = 8192;
+    char buffer[bufferSize];
+    unsigned int offset = 0;
+
+    uint8_t messageType = CatCore::Data;
+    CatCore::ServerUtils::writeToBuffer(buffer, offset, &messageType, sizeof(messageType));
+
+    uint8_t spriteCount = sprites.size();
+    CatCore::ServerUtils::writeToBuffer(buffer, offset, &spriteCount, sizeof(spriteCount));
+
+    for (auto sprite : sprites)
+        sprite.serialize(buffer, offset);
 
     ENetPacket* packet = enet_packet_create(buffer, offset, ENET_PACKET_FLAG_RELIABLE);
     enet_host_broadcast(serverHost, 1, packet);
