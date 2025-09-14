@@ -18,6 +18,7 @@ public:
 
 private:
 	bool disconnected = false;
+	bool hasBobber = false;
 	void SetKey(const char key, const bool value);
 	void SetKey(const char key);
 	std::unordered_map<char, bool> inputs;
