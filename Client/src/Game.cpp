@@ -63,6 +63,8 @@ void Game::Update()
     BeginMode2D(camera);
     EndMode2D();
 
+    //Client::SendFuncId(1);
+
     for (auto player : Client::players)
         DrawTextureEx(*player.first, {player.second.position.x, player.second.position.y}, 0, 0.1f, WHITE);
 
