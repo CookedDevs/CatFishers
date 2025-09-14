@@ -45,12 +45,6 @@ void Server::Init()
 
     /* Connect and user service */
     eventStatus = 1;
-
-    CatCore::Sprite sprite;
-    sprite.position = { 1,1,0 };
-    sprite.rotation = 0;
-    sprite.size = 0.1;
-    sprites.push_back(sprite);
 }
 
 void Server::Close()

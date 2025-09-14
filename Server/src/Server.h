@@ -32,6 +32,9 @@ public:
 			return nullptr;
 	}
 
+	static std::vector<CatCore::Sprite>& GetSprites() { return sprites; }
+	static const void AddSprite(CatCore::Sprite sprite) { sprites.push_back(sprite); }
+
 private:
 	static inline ENetAddress address;
 	static inline ENetHost* serverHost;
