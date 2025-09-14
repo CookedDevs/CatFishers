@@ -159,7 +159,9 @@ bool Server::Run()
 
     SendPlayerAddOrRemove();
     SendPlayers();
-    SendScene();
+
+    SendSpriteAddOrRemove();
+    SendSpriteData();
 
     enet_host_flush(serverHost);
     return true;
@@ -190,7 +192,7 @@ void Server::SendPlayerAddOrRemove()
             CatCore::Player* addPlayer = GetPlayer(player.first);
             CatCore::ServerUtils::writeToBuffer(buffer, offset, addPlayer->GetName().c_str());
             CatCore::ServerUtils::writeToBuffer(buffer, offset, addPlayer->GetTexture().c_str());
-            CatCore::ServerUtils::serializeVector3(buffer, offset, addPlayer->position);
+            CatCore::ServerUtils::serializeVector3(buffer, offset, addPlayer->GetPosition());
         }
     }
 
@@ -224,31 +226,80 @@ void Server::SendPlayers()
     {
         CatCore::ServerUtils::writeToBuffer(buffer, offset, player.GetName().c_str());
         CatCore::ServerUtils::writeToBuffer(buffer, offset, player.GetTexture().c_str());
-        CatCore::ServerUtils::serializeVector3(buffer, offset, player.position);
+        CatCore::ServerUtils::serializeVector3(buffer, offset, player.GetPosition());
     }
 
     ENetPacket* packet = enet_packet_create(buffer, offset, ENET_PACKET_FLAG_RELIABLE);
     enet_host_broadcast(serverHost, 1, packet);
 }
 
-void Server::SendScene()
+void Server::SendSpriteAddOrRemove()
 {
     const size_t bufferSize = 8192;
     char buffer[bufferSize];
     unsigned int offset = 0;
 
-    uint8_t messageType = CatCore::Data;
+    uint8_t messageType = CatCore::SpriteAddOrRemove;
     CatCore::ServerUtils::writeToBuffer(buffer, offset, &messageType, sizeof(messageType));
 
-    uint8_t spriteCount = sprites.size();
-    CatCore::ServerUtils::writeToBuffer(buffer, offset, &spriteCount, sizeof(spriteCount));
+    uint8_t playerCount = spritesToAddOrRemove.size();
+    CatCore::ServerUtils::writeToBuffer(buffer, offset, &playerCount, sizeof(playerCount));
 
-    for (auto sprite : sprites)
-        sprite.second.serialize(buffer, offset);
+    for (auto sprite : spritesToAddOrRemove)
+    {
+        CatCore::ServerUtils::writeToBuffer(buffer, offset, &sprite.second, sizeof(bool));
+        if (sprite.second)
+        {
+            CatCore::Sprite* removeSprite = GetSprite(sprite.first);
+            CatCore::ServerUtils::writeToBuffer(buffer, offset, removeSprite->GetName().c_str());
+        }
+        else
+        {
+            CatCore::Sprite* addSprite = GetSprite(sprite.first);
+            CatCore::ServerUtils::writeToBuffer(buffer, offset, addSprite->GetName().c_str());
+            CatCore::ServerUtils::writeToBuffer(buffer, offset, addSprite->GetTexture().c_str());
+            CatCore::ServerUtils::serializeVector3(buffer, offset, addSprite->GetPosition());
+        }
+    }
 
     ENetPacket* packet = enet_packet_create(buffer, offset, ENET_PACKET_FLAG_RELIABLE);
     enet_host_broadcast(serverHost, 1, packet);
 }
+
+void Server::SendSpriteData()
+{
+    const size_t bufferSize = 8192;
+    char buffer[bufferSize];
+    unsigned int offset = 0;
+
+    std::vector<CatCore::Sprite> spriteDataToSend;
+    for (auto sprite : sprites)
+    {
+        if (sprite.second.GetChanged() == true)
+        {
+            spriteDataToSend.push_back(sprite.second);
+            sprite.second.SetChanged(false);
+        }
+    }
+
+    uint8_t messageType = CatCore::SpriteData;
+    CatCore::ServerUtils::writeToBuffer(buffer, offset, &messageType, sizeof(messageType));
+
+    uint8_t playerCount = spriteDataToSend.size();
+    CatCore::ServerUtils::writeToBuffer(buffer, offset, &playerCount, sizeof(playerCount));
+
+    for (auto sprite : spriteDataToSend)
+    {
+        CatCore::ServerUtils::writeToBuffer(buffer, offset, sprite.GetName().c_str());
+        CatCore::ServerUtils::writeToBuffer(buffer, offset, sprite.GetTexture().c_str());
+        CatCore::ServerUtils::serializeVector3(buffer, offset, sprite.GetPosition());
+    }
+
+    ENetPacket* packet = enet_packet_create(buffer, offset, ENET_PACKET_FLAG_RELIABLE);
+    enet_host_broadcast(serverHost, 1, packet);
+}
+
+
 
 void Server::SendPlayerData(const std::vector<uint8_t> data)
 {

@@ -21,18 +21,18 @@ void Game::Update() {
     }
 }
 
-void Game::ThrowBobber(int playerId, const Vector3& pos) {
+void Game::ThrowBobber(int playerId, const CatCore::Vector3& pos) {
     Bobber bobber;
-    bobber.sprite.position = pos;
-    bobber.sprite.rotation = 0;
-    bobber.sprite.size = 0.1f;
-    bobber.sprite.texture = "Resources/Images/bobber.png";
+    bobber.sprite.SetPosition(pos);
+    bobber.sprite.SetRotation(0);
+    bobber.sprite.SetSize(0.1f);
+    bobber.sprite.SetTexture("Resources/Images/bobber.png");
 
     int waitSec = 3 + (rand() % 6);
     bobber.biteTime = std::chrono::steady_clock::now() + std::chrono::seconds(waitSec);
 
     bobbers[playerId] = bobber;
-    Server::GetSprites().push_back(bobber.sprite);
+    Server::AddSprite(bobber.sprite, "bobber" + playerId);
 }
 
 bool Game::ReelBobber(int playerId) {
@@ -43,8 +43,7 @@ bool Game::ReelBobber(int playerId) {
     bobbers.erase(it);
 
     auto& sprites = Server::GetSprites();
-    sprites.erase(std::remove_if(sprites.begin(), sprites.end(),
-        [&](auto& s) { return s.texture == "Resources/Images/bobber.png"; }), sprites.end());
+    Server::RemoveSprite("bobber" + playerId);
 
     return caught;
 }

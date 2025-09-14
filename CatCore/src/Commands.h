@@ -39,6 +39,8 @@ namespace CatCore
 		Data = 3,
 		PlayerAddOrRemove = 4,
 		PlayerData = 5,
-		Function = 6
+		Function = 6,
+		SpriteAddOrRemove = 7,
+		SpriteData = 8
 	};
 }

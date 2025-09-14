@@ -53,7 +53,7 @@ void Game::Update()
         DrawTextureEx(*LoadedTextures::GetTex(player.second.GetTexture()), { player.second.GetPosition().x, player.second.GetPosition().y}, 0, 0.1f, WHITE);
 
     for (auto sprite : Client::sprites)
-        DrawTextureEx(*LoadedTextures::GetTex(sprite.second.texture), { sprite.second.position.x, sprite.second.position.y }, sprite.second.rotation, sprite.second.size, WHITE);
+        DrawTextureEx(*LoadedTextures::GetTex(sprite.second.GetTexture()), { sprite.second.GetPosition().x, sprite.second.GetPosition().y }, sprite.second.GetRotation(), sprite.second.GetSize(), WHITE);
 
     AndroidInput::Joystick();
     Client::SendInputData();

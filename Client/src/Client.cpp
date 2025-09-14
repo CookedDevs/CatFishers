@@ -133,7 +133,7 @@ bool Client::Run()
                     CatCore::ServerUtils::readTextFromBuffer(buffer, offset, texture);
                     CatCore::ServerUtils::deserializeVector3(buffer, offset, position);
 
-                    players[name].position = position;
+                    players[name].SetPosition(position);
                     if (players[name].GetTexture() != texture)
                     {
                         LoadedTextures::UnLoadTex(players[name].GetTexture());
@@ -144,21 +144,34 @@ bool Client::Run()
             }
             else if (event.packet && event.packet->data[0] == CatCore::ServerReceiveType::Data)
             {
-                for (auto sprite : sprites)
-                 //   LoadedTextures::UnLoadTex(sprite.texture);
-                sprites.clear();
                 char* buffer = (char*)event.packet->data;
-                unsigned int offset = 1;
+                unsigned int offset = sizeof(uint8_t);
 
                 uint8_t spriteCount;
                 CatCore::ServerUtils::readFromBuffer(buffer, offset, &spriteCount, sizeof(spriteCount));
 
                 for (size_t i = 0; i < spriteCount; i++)
                 {
-                    CatCore::Sprite sprite;
-                    sprite.DeSerialize(buffer, offset);
-                    LoadedTextures::LoadTex(sprite.texture);
-                    //sprites[sprite.] = sprite;
+                    char* name = "";
+                    char* texturePath = "";
+                    CatCore::Vector3 position;
+                    float rotation;
+                    float size;
+
+                    CatCore::ServerUtils::readTextFromBuffer(buffer, offset, name);
+                    CatCore::ServerUtils::readTextFromBuffer(buffer, offset, texturePath);
+
+                    CatCore::ServerUtils::deserializeVector3(buffer, offset, position);
+                    CatCore::ServerUtils::readFromBuffer(buffer, offset, &rotation, sizeof(rotation));
+                    CatCore::ServerUtils::readFromBuffer(buffer, offset, &size, sizeof(size));
+
+                    sprites[name].SetPosition(position);
+                    if (sprites[name].GetTexture() != texturePath)
+                    {
+                        LoadedTextures::UnLoadTex(sprites[name].GetTexture());
+                        sprites[name].SetTexture(texturePath);
+                        LoadedTextures::LoadTex(sprites[name].GetTexture());
+                    }
                 }
             }
 

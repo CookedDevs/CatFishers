@@ -12,8 +12,6 @@ namespace CatCore
 		Player();
 		~Player();
 
-		Vector3 position = { 0,0,0 };
-
 		void SetPosition(Vector3 position) { this->position = position; changed = true; }
 		const Vector3& GetPosition() { return position; }
 
@@ -34,6 +32,7 @@ namespace CatCore
 
 	private:
 
+		Vector3 position = { 0,0,0 };
 		std::string texture = "Resources/Images/cat.png";
 		std::string name = "";
 		std::unordered_map<char, bool> inputInfo;

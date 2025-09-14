@@ -1,7 +1,9 @@
-
 #pragma once
 #include "Player.h"
+#include "Sprite.h"
+
 #include <iostream>
+#include <chrono>
 
 struct Bobber {
     CatCore::Sprite sprite;
@@ -19,6 +21,9 @@ public:
 	static void UnInit();
 	static void Init();
 	static void Update();
+
+	void Game::ThrowBobber(int playerId, const CatCore::Vector3& pos);
+	bool Game::ReelBobber(int playerId);
 
 private:
 };
