@@ -221,23 +221,36 @@ bool Client::Run()
 
 void Client::SendInputData()
 {
+    const size_t bufferSize = 512;
+    char buffer[bufferSize];
+    unsigned int offset = 0;
+
     if (!serverPeer || serverPeer->state != ENET_PEER_STATE_CONNECTED) return;
 
-    uint8_t sendType = (uint8_t)CatCore::ServerReceiveType::Data;
+    uint8_t messageType = CatCore::Data;
+    CatCore::ServerUtils::writeToBuffer(buffer, offset, &messageType, sizeof(messageType));
+
+    uint8_t inputCount = changedInputs.size();
+    CatCore::ServerUtils::writeToBuffer(buffer, offset, &inputCount, sizeof(inputCount));
 
     for (auto input : changedInputs)
     {
-        std::vector<uint8_t> send;
-        send.push_back(sendType);
-        send.push_back(input.first);
-        send.push_back(input.second);
-
-        ENetPacket* packet = enet_packet_create(send.data(), send.size(), ENET_PACKET_FLAG_RELIABLE);
-        enet_peer_send(serverPeer, 0, packet);
-        enet_host_flush(clientHost);
+        CatCore::ServerUtils::writeToBuffer(buffer, offset, &input.first, sizeof(input.first));
+        CatCore::ServerUtils::writeToBuffer(buffer, offset, &input.second, sizeof(input.second));
     }
 
-    enet_host_flush(clientHost);
+    if (mouse.input != CatCore::NoInput)
+    {
+        CatCore::ServerUtils::writeToBuffer(buffer, offset, &mouse.input, sizeof(mouse.input));
+        CatCore::ServerUtils::writeToBuffer(buffer, offset, &mouse.x, sizeof(mouse.x));
+        CatCore::ServerUtils::writeToBuffer(buffer, offset, &mouse.y, sizeof(mouse.y));
+    }
+
+    if (changedInputs.size() > 0 || mouse.input != CatCore::NoInput)
+    {
+        ENetPacket* packet = enet_packet_create(buffer, offset, ENET_PACKET_FLAG_RELIABLE);
+        enet_peer_send(serverPeer, 0, packet);
+    }
 }
 
 void Client::SendFuncId(const uint16_t id)

@@ -105,16 +105,34 @@ bool Server::Run()
             }
             else if (event.packet->data[0] == CatCore::ServerReceiveType::Data)
             {
-                std::vector<char> inputs;
-                inputs.resize(event.packet->dataLength - 1);
-                for (size_t i = 1; i < event.packet->dataLength; i++)
-                    inputs[i - 1] = event.packet->data[i];
+                char* buffer = (char*)event.packet->data;
+                unsigned int offset = 1;
 
-                if (inputs.size() >= 2)
+                uint8_t inputCount;
+                CatCore::ServerUtils::readFromBuffer(buffer, offset, &inputCount, sizeof(inputCount));
+
+                std::unordered_map<char, bool> inputs;
+                for (size_t i = 0; i < inputCount; i++)
                 {
-                    std::cout << inputs[0] << " Is : " << (bool)inputs[1] << "\n";
-                    GetPlayer(event.peer)->SetInputInfo(inputs[0], inputs[1]);
+                    char input;
+                    bool status;
+                    
+                    CatCore::ServerUtils::readFromBuffer(buffer, offset, &input, sizeof(input));
+                    CatCore::ServerUtils::readFromBuffer(buffer, offset, &status, sizeof(status));
+
+                    inputs[input] = status;
                 }
+
+                for (auto input : inputs)
+                    GetPlayer(event.peer)->SetInputInfo(input.first, input.second);
+
+                CatCore::Mouse mouse;
+                CatCore::ServerUtils::readFromBuffer(buffer, offset, &mouse.input, sizeof(mouse.input));
+                CatCore::ServerUtils::readFromBuffer(buffer, offset, &mouse.x, sizeof(mouse.x));
+                CatCore::ServerUtils::readFromBuffer(buffer, offset, &mouse.y, sizeof(mouse.y));
+                GetPlayer(event.peer)->SetMouse(mouse);
+
+                ENetPacket* packet = enet_packet_create(buffer, offset, ENET_PACKET_FLAG_RELIABLE);
             }
             else if (event.packet->data[0] == CatCore::ServerReceiveType::Function)
             {

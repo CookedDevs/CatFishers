@@ -17,9 +17,6 @@
 #include <vector>
 #include <functional>
 
-#include "Player.h"
-
-
 namespace CatCore
 {
 	enum PermissionLevels
