@@ -18,9 +18,5 @@ public:
 
 private:
 	bool disconnected = false;
-	void SetKey(const char key, const bool value);
-	void SetKey(const char key);
-	std::unordered_map<char, bool> inputs;
-	std::unordered_map<char, bool> changedInputs;
 	Camera2D camera;
 };

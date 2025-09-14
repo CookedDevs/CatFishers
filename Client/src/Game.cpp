@@ -5,6 +5,7 @@
 
 void Game::UnInit()
 {
+    Client::players.clear();
     LoadedTextures::UnLoadAllTex();
 }
 
@@ -21,42 +22,14 @@ void Game::Init()
     };
 }
 
-void Game::SetKey(const char key, const bool value)
-{
-    if (inputs.find(key) == inputs.end())
-    {
-        inputs[key] = value;
-        changedInputs[key] = inputs[key];
-    }
-    else if (value != inputs[key])
-    {
-        inputs[key] = !inputs[key];
-        changedInputs[key] = inputs[key];
-    }
-}
-
-void Game::SetKey(const char key)
-{
-    if (inputs.find(key) == inputs.end())
-    {
-        inputs[key] = IsKeyDown(key);
-        changedInputs[key] = inputs[key];
-    }
-    else if (IsKeyDown(key) != inputs[key])
-    {
-        inputs[key] = !inputs[key];
-        changedInputs[key] = inputs[key];
-    }
-}
-
 void Game::Update()
 {
     Client::Run();
     if (disconnected) return;
 
-    changedInputs.clear();
-    SetKey('A'); SetKey('D');
-    SetKey('W'); SetKey('S');
+    Client::ClearChangedInputs();
+    Client::SetKey('A'); Client::SetKey('D');
+    Client::SetKey('W'); Client::SetKey('S');
 
     BeginDrawing();
     ClearBackground(SKYBLUE);
@@ -67,13 +40,13 @@ void Game::Update()
     //Client::SendFuncId(1);
 
     for (auto player : Client::players)
-        DrawTextureEx(*player.first, {player.second.position.x, player.second.position.y}, 0, 0.1f, WHITE);
+        DrawTextureEx(*LoadedTextures::GetTex(player.second.GetTexture()), { player.second.GetPosition().x, player.second.GetPosition().y}, 0, 0.1f, WHITE);
 
     for (auto sprite : Client::sprites)
-        DrawTextureEx(*sprite.first, { sprite.second.position.x, sprite.second.position.y }, sprite.second.rotation, sprite.second.size, WHITE);
+        DrawTextureEx(*LoadedTextures::GetTex(sprite.second.texture), { sprite.second.position.x, sprite.second.position.y }, sprite.second.rotation, sprite.second.size, WHITE);
 
     AndroidInput::Joystick();
-    Client::SendInputData(changedInputs);
+    Client::SendInputData();
 
     DrawFPS(10, 10);
     EndDrawing();

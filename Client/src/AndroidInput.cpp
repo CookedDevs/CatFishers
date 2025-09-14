@@ -1,4 +1,5 @@
 #include "AndroidInput.h"
+#include "Client.h"
 
 #ifdef _ANDROID_
 #include <android/log.h>
@@ -59,10 +60,10 @@ void AndroidInput::Joystick()
 
     unsigned int deadZoneSize = 14;
 
-    if (smallerCirclePosition.x <= circlePosition.x - deadZoneSize) SetKey('A', true); else SetKey('A', false);
-    if (smallerCirclePosition.x >= circlePosition.x + deadZoneSize) SetKey('D', true); else SetKey('D', false);
-    if (smallerCirclePosition.y <= circlePosition.y - deadZoneSize) SetKey('W', true); else SetKey('W', false);
-    if (smallerCirclePosition.y >= circlePosition.y + deadZoneSize) SetKey('S', true); else SetKey('S', false);
+    if (smallerCirclePosition.x <= circlePosition.x - deadZoneSize) Client::SetKey('A', true); else Client::SetKey('A', false);
+    if (smallerCirclePosition.x >= circlePosition.x + deadZoneSize) Client::SetKey('D', true); else Client::SetKey('D', false);
+    if (smallerCirclePosition.y <= circlePosition.y - deadZoneSize) Client::SetKey('W', true); else Client::SetKey('W', false);
+    if (smallerCirclePosition.y >= circlePosition.y + deadZoneSize) Client::SetKey('S', true); else Client::SetKey('S', false);
 
     DrawCircleV(circlePosition, biggerRadius, LIGHTGRAY);
     DrawCircleV(smallerCirclePosition, smallerRadius, RED);

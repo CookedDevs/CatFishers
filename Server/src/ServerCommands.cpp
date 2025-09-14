@@ -74,7 +74,9 @@ void ServerCommands::InitializeCommands() // TODO: permissions
 	name.permission = CatCore::PermissionLevels::NonNamed;
 	name.runCommand = [](ENetPeer* sender, std::vector<std::string> args) -> bool
 	{
-		Server::GetPlayer(sender)->name = args[1];
+		Server::GetPlayer(sender)->SetName(args[1]);
+		Server::AddPlayerToSend(sender);
+
 		CatCore::ServerUtils::SendMessage(sender, "Name set to : " + args[1] + "\n");
 		return true;
 	};

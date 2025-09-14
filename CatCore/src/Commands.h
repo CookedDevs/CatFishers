@@ -37,7 +37,8 @@ namespace CatCore
 		Message = 1,
 		CommandData = 2,
 		Data = 3,
-		PlayerData = 4,
-		Function = 5
+		PlayerAddOrRemove = 4,
+		PlayerData = 5,
+		Function = 6
 	};
 }

@@ -17,13 +17,18 @@ public:
 	static void Close();
 
 	static void BroadcastMessage(const std::string message);
+	static void SendPlayerAddOrRemove();
 	static void SendPlayers();
 	static void SendScene();
 	static void SendPlayerData(const std::vector<uint8_t> data);
 	static void BroadcastExludeMessage(ENetPeer* excludedReseiver, const std::string message, CatCore::ServerReceiveType type);
 
 	static std::unordered_map<ENetPeer*, CatCore::Player>& GetPlayers() { return players; }
-	static const void AddPlayer(CatCore::Player player, ENetPeer* peer) { players[peer] = player; }
+	static const void AddPlayer(CatCore::Player player, ENetPeer* peer) { players[peer] = player; playersToAddOrRemove[peer] = false; }
+	static const void AddPlayer(ENetPeer* peer) { players[peer] = CatCore::Player(); }
+	static const void AddPlayerToSend(ENetPeer* peer) { playersToAddOrRemove[peer] = false; }
+
+	static const void RemovePlayer(ENetPeer* peer) { players.erase(peer); playersToAddOrRemove[peer] = true; }
 	static CatCore::Player* GetPlayer(ENetPeer* peer) 
 	{
 		if (players.find(peer) != players.end())
@@ -50,6 +55,7 @@ private:
 	static inline char addressBuffer[ENET_ADDRESS_MAX_LENGTH];
 
 	static inline std::unordered_map<ENetPeer*, CatCore::Player> players;
+	static inline std::unordered_map<ENetPeer*, bool> playersToAddOrRemove;
 	static inline std::unordered_map<std::string, CatCore::Sprite> sprites;
 };
 

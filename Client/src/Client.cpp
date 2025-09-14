@@ -78,11 +78,47 @@ bool Client::Run()
                 recv.erase(0, 1);
                 ClientCommands::AddServerCommands(recv);
             }
+            else if (event.packet && event.packet->data[0] == CatCore::ServerReceiveType::PlayerAddOrRemove)
+            {
+                char* buffer = (char*)event.packet->data;
+                unsigned int offset = sizeof(uint8_t);
+
+                uint8_t playerCount;
+                CatCore::ServerUtils::readFromBuffer(buffer, offset, &playerCount, sizeof(playerCount));
+
+                for (size_t i = 0; i < playerCount; i++)
+                {
+                    bool addOrRemove;
+                    char* name = "";
+                    char* texture = "";
+                    CatCore::Vector3 position;
+
+                    CatCore::ServerUtils::readFromBuffer(buffer, offset, &addOrRemove, sizeof(bool));
+                    if (addOrRemove)
+                    {
+                        CatCore::ServerUtils::readTextFromBuffer(buffer, offset, name);
+                        LoadedTextures::UnLoadTex(players[name].GetTexture());
+                        players.erase(name);
+                    }
+                    else
+                    {
+                        CatCore::ServerUtils::readTextFromBuffer(buffer, offset, name);
+                        CatCore::ServerUtils::readTextFromBuffer(buffer, offset, texture);
+                        CatCore::ServerUtils::deserializeVector3(buffer, offset, position);
+
+                        CatCore::Player player;
+                        player.SetName(name);
+                        player.SetTexture(texture);
+                        player.SetPosition(position);
+                        LoadedTextures::LoadTex(player.GetTexture());
+                        players[player.GetName()] = player;
+                    }
+                }
+            }
             else if (event.packet && event.packet->data[0] == CatCore::ServerReceiveType::PlayerData)
             {
-                players.clear();
                 char* buffer = (char*)event.packet->data;
-                unsigned int offset = 1;
+                unsigned int offset = sizeof(uint8_t);
 
                 uint8_t playerCount;
                 CatCore::ServerUtils::readFromBuffer(buffer, offset, &playerCount, sizeof(playerCount));
@@ -97,15 +133,19 @@ bool Client::Run()
                     CatCore::ServerUtils::readTextFromBuffer(buffer, offset, texture);
                     CatCore::ServerUtils::deserializeVector3(buffer, offset, position);
 
-                    CatCore::Player player;
-                    player.name = name;
-                    player.texture = texture;
-                    player.position = position;
-                    players[LoadedTextures::LoadTex(player.texture)] = player;
+                    players[name].position = position;
+                    if (players[name].GetTexture() != texture)
+                    {
+                        LoadedTextures::UnLoadTex(players[name].GetTexture());
+                        players[name].SetTexture(texture);
+                        LoadedTextures::LoadTex(players[name].GetTexture());
+                    }
                 }
             }
             else if (event.packet && event.packet->data[0] == CatCore::ServerReceiveType::Data)
             {
+                for (auto sprite : sprites)
+                 //   LoadedTextures::UnLoadTex(sprite.texture);
                 sprites.clear();
                 char* buffer = (char*)event.packet->data;
                 unsigned int offset = 1;
@@ -117,7 +157,8 @@ bool Client::Run()
                 {
                     CatCore::Sprite sprite;
                     sprite.DeSerialize(buffer, offset);
-                    sprites[LoadedTextures::LoadTex(sprite.texture)] = sprite;
+                    LoadedTextures::LoadTex(sprite.texture);
+                    //sprites[sprite.] = sprite;
                 }
             }
 
@@ -165,13 +206,13 @@ bool Client::Run()
     return true;
 }
 
-void Client::SendInputData(const std::unordered_map<char, bool> inputs)
+void Client::SendInputData()
 {
     if (!serverPeer || serverPeer->state != ENET_PEER_STATE_CONNECTED) return;
 
     uint8_t sendType = (uint8_t)CatCore::ServerReceiveType::Data;
 
-    for (auto input : inputs)
+    for (auto input : changedInputs)
     {
         std::vector<uint8_t> send;
         send.push_back(sendType);
@@ -201,6 +242,34 @@ void Client::SendFuncId(const uint16_t id)
     enet_host_flush(clientHost);
 }
 
+
+void Client::SetKey(const char key, const bool value)
+{
+    if (inputs.find(key) == inputs.end())
+    {
+        inputs[key] = value;
+        changedInputs[key] = inputs[key];
+    }
+    else if (value != inputs[key])
+    {
+        inputs[key] = !inputs[key];
+        changedInputs[key] = inputs[key];
+    }
+}
+
+void Client::SetKey(const char key)
+{
+    if (inputs.find(key) == inputs.end())
+    {
+        inputs[key] = IsKeyDown(key);
+        changedInputs[key] = inputs[key];
+    }
+    else if (IsKeyDown(key) != inputs[key])
+    {
+        inputs[key] = !inputs[key];
+        changedInputs[key] = inputs[key];
+    }
+}
 
 void Client::PrintLine(std::string message)
 {

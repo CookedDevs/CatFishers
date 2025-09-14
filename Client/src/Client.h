@@ -26,18 +26,23 @@ public:
 	static void PrintLine(std::string message);
 	static void SetIp(std::string ip){ serverIp = ip;}
 
-	static void SendInputData(const std::unordered_map<char, bool> input);
+	static void SendInputData();
 	static void SendFuncId(const uint16_t id);
 	static ENetPeer* GetPeer(){return serverPeer;}
 
-	static inline std::unordered_map<Texture2D*, CatCore::Player> players;
-	static inline std::unordered_map<Texture2D*, CatCore::Sprite> sprites;
+	static inline std::unordered_map<std::string, CatCore::Player> players;
+	static inline std::unordered_map<std::string, CatCore::Sprite> sprites;
 
 	static std::function<void()> onConnected;
 	static std::function<void(const std::string&)> onDisconnected;
 
-
+	static void SetKey(const char key, const bool value);
+	static void SetKey(const char key);
+	static void ClearChangedInputs() { changedInputs.clear(); }
 private:
+	static inline std::unordered_map<char, bool> inputs;
+	static inline std::unordered_map<char, bool> changedInputs;
+
 	static inline ENetAddress address;
 	static inline ENetHost* clientHost;
 	static inline ENetPeer* serverPeer;
