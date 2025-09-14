@@ -27,12 +27,12 @@ void Server::Init()
 
     /* Build the listen address (any + port) */
     //enet_address_build_any(&address, ENET_ADDRESS_TYPE_IPV6);
-    enet_address_set_host(&address, ENET_ADDRESS_TYPE_IPV4, "192.168.0.139");
+    enet_address_set_host(&address, ENET_ADDRESS_TYPE_IPV6, "localhost");
     address.port = 1234;
 
     /* Create a host using enet_host_create, address type has to match the address,  */
     /* except for the combination IPv6 + Any which enables dual stack (IPv6 socket allowing IPv4 connection)  */
-    serverHost = enet_host_create(ENET_ADDRESS_TYPE_IPV4, &address, 32, 2, 0, 0);
+    serverHost = enet_host_create(ENET_ADDRESS_TYPE_IPV6, &address, 32, 2, 0, 0);
     if (serverHost == NULL)
     {
         std::cerr << "An error occured while trying to create an ENet6 server host!\n";
