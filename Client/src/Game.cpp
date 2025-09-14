@@ -31,6 +31,16 @@ void Game::Update()
     Client::SetKey('A'); Client::SetKey('D');
     Client::SetKey('W'); Client::SetKey('S');
 
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        if (!hasBobber) {
+           // SendCommand("throw_bobber");
+            hasBobber = true;
+        } else {
+           // SendCommand("reel_bobber");
+            hasBobber = false;
+        }
+    }
+
     BeginDrawing();
     ClearBackground(SKYBLUE);
     
