@@ -33,10 +33,10 @@ void Game::Update()
 
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
         if (!hasBobber) {
-           // SendCommand("throw_bobber");
+           Client::SendFuncId(1);
             hasBobber = true;
         } else {
-           // SendCommand("reel_bobber");
+           Client::SendFuncId(2);
             hasBobber = false;
         }
     }
