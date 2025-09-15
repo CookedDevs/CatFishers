@@ -15,6 +15,7 @@
 
 #include "ServerUtils.h"
 #include "Sprite.h"
+#include "Player.h"
 
 
 class Client
@@ -42,6 +43,7 @@ public:
 private:
 	static inline std::unordered_map<char, bool> inputs;
 	static inline std::unordered_map<char, bool> changedInputs;
+	static inline CatCore::Mouse mouse;
 
 	static inline ENetAddress address;
 	static inline ENetHost* clientHost;
@@ -51,8 +53,6 @@ private:
 	static inline char addressBuffer[ENET_ADDRESS_MAX_LENGTH];
 	static inline int running = 1;
 	static inline std::string serverIp = "localhost";
-
-
 
 #ifndef __ANDROID__
 	static inline Commandline com = Commandline("");

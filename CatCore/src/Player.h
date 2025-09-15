@@ -3,6 +3,7 @@
 #include <iostream>
 #include <unordered_map>
 #include "CatMath.h"
+#include "ServerUtils.h"
 
 namespace CatCore
 {
@@ -30,12 +31,16 @@ namespace CatCore
 		void SetChanged(bool changed) { this->changed = changed;}
 		bool GetChanged() { return changed; }
 
+		void SetMouse(Mouse mouse) { this->mouse = mouse; }
+		const Mouse& GetMouse() { return mouse; }
+
 	private:
 
 		Vector3 position = { 0,0,0 };
 		std::string texture = "Resources/Images/cat.png";
 		std::string name = "";
 		std::unordered_map<char, bool> inputInfo;
+		Mouse mouse;
 
 		bool changed = false;
 	};
