@@ -39,11 +39,12 @@ public:
 
 	static void SetKey(const char key, const bool value);
 	static void SetKey(const char key);
-	static void ClearChangedInputs() { changedInputs.clear(); }
+	static void ClearChangedInputs() {changedInputs.clear();}
+	static inline CatCore::Mouse mouse;
+
 private:
 	static inline std::unordered_map<char, bool> inputs;
 	static inline std::unordered_map<char, bool> changedInputs;
-	static inline CatCore::Mouse mouse;
 
 	static inline ENetAddress address;
 	static inline ENetHost* clientHost;

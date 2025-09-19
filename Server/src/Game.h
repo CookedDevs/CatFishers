@@ -22,8 +22,8 @@ public:
 	static void Init();
 	static void Update();
 
-	void ThrowBobber(ENetPeer* peer);
-	bool ReelBobber();
+	static void ThrowBobber(ENetPeer* peer);
+    static bool ReelBobber(ENetPeer* peer);
 
 private:
 };
