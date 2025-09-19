@@ -33,9 +33,8 @@ namespace CatCore
 
 	struct Mouse
 	{
-		int x;
-		int y;
-
+		float x;
+		float y;
 		InputType input = NoInput;
 	};
 

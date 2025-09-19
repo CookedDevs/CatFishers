@@ -30,13 +30,17 @@ void Game::Update()
     Client::ClearChangedInputs();
     Client::SetKey('A'); Client::SetKey('D');
     Client::SetKey('W'); Client::SetKey('S');
-
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        Vector2 mousepoint = GetMousePosition();
+        Client::mouse.x = mousepoint.x;
+        Client::mouse.y = mousepoint.y;
+        Client::mouse.input = CatCore::LeftMouse;
         if (!hasBobber) {
-           Client::SendFuncId(1);
+            Client::SendInputData();
+            Client::SendFuncId(1);
             hasBobber = true;
         } else {
-           Client::SendFuncId(2);
+            Client::SendFuncId(2);
             hasBobber = false;
         }
     }
@@ -56,6 +60,7 @@ void Game::Update()
         DrawTextureEx(*LoadedTextures::GetTex(sprite.second.GetTexture()), { sprite.second.GetPosition().x, sprite.second.GetPosition().y }, sprite.second.GetRotation(), sprite.second.GetSize(), WHITE);
 
     AndroidInput::Joystick();
+
     Client::SendInputData();
 
     DrawFPS(10, 10);

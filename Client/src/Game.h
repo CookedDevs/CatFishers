@@ -4,6 +4,7 @@
 #include "Menu.h"
 #include "ResourceManager.h"
 #include <iostream>
+#include <vector>
 
 class Game : public State
 {
@@ -24,4 +25,5 @@ private:
 	std::unordered_map<char, bool> inputs;
 	std::unordered_map<char, bool> changedInputs;
 	Camera2D camera;
+	
 };

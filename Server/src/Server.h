@@ -8,6 +8,7 @@
 #include "ServerUtils.h"
 #include "Player.h"
 #include "Sprite.h"
+#include "Game.h"
 
 class Server
 {

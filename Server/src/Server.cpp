@@ -65,7 +65,7 @@ bool Server::Run()
     /* If we had some event that interested us */
     if (eventStatus > 0)
     {
-        switch (event.type)
+        switch (event.type) 
         {
         case ENET_EVENT_TYPE_CONNECT:
         {
@@ -78,6 +78,7 @@ bool Server::Run()
         }
 
         case ENET_EVENT_TYPE_RECEIVE:
+        {
 
             if (event.packet->data[0] == CatCore::ServerReceiveType::Message)
             {
@@ -144,18 +145,32 @@ bool Server::Run()
                 
                 switch (funcId)
                 {
-                case 1:
-                    TestFunc();
-                    break;
+                    case 1: {
+                        Game::ThrowBobber(event.peer);
+                        break;
+                    }
+                    case 2:{
+                        Game::ReelBobber(event.peer);
+                        break;
+                    }
+                    default : {
+                        break;
+                    }
                 }
+                enet_packet_destroy(event.packet);
             }
             break;
-
+        }
         case ENET_EVENT_TYPE_DISCONNECT:
         case ENET_EVENT_TYPE_DISCONNECT_TIMEOUT:
         {
             enet_address_get_host_ip(&event.peer->address, addressBuffer, ENET_ADDRESS_MAX_LENGTH);
-            std::cout << "Client " << addressBuffer << " disconnected " << (event.type == ENET_EVENT_TYPE_DISCONNECT_TIMEOUT) ? " (timeout)" : "";
+
+            std::cout << "Client " << addressBuffer 
+                    << " disconnected" 
+                    << ((event.type == ENET_EVENT_TYPE_DISCONNECT_TIMEOUT) ? " (timeout)" : "") 
+                    << "\n";
+
             RemovePlayer(event.peer);
             break;
         }
@@ -184,6 +199,7 @@ bool Server::Run()
     enet_host_flush(serverHost);
     return true;
 }
+
 
 void Server::SendPlayerAddOrRemove()
 {
