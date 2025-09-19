@@ -9,6 +9,7 @@
 
 #include "ServerCommands.h"
 #include "CatMath.h"
+#include "Game.h"
 
 void Server::Init()
 {
@@ -193,10 +194,10 @@ bool Server::Run()
         if (changed) player.second.SetPosition(position);
     }
 
-    SendPlayerAddOrRemove();
+    if (runplayersToAddOrRemove) SendPlayerAddOrRemove();
     SendPlayers();
 
-    SendSpriteAddOrRemove();
+    if (runspritesToAddOrRemove) SendSpriteAddOrRemove();
     SendSpriteData();
 
     enet_host_flush(serverHost);
@@ -277,6 +278,7 @@ void Server::SendPlayers()
 
     ENetPacket* packet = enet_packet_create(buffer, offset, ENET_PACKET_FLAG_RELIABLE);
     enet_host_broadcast(serverHost, 1, packet);
+    runplayersToAddOrRemove = false;
 }
 
 void Server::SendSpriteAddOrRemove()
@@ -288,8 +290,8 @@ void Server::SendSpriteAddOrRemove()
     uint8_t messageType = CatCore::SpriteAddOrRemove;
     CatCore::ServerUtils::writeToBuffer(buffer, offset, &messageType, sizeof(messageType));
 
-    uint8_t playerCount = spritesToAddOrRemove.size();
-    CatCore::ServerUtils::writeToBuffer(buffer, offset, &playerCount, sizeof(playerCount));
+    uint8_t spriteCount = spritesToAddOrRemove.size();
+    CatCore::ServerUtils::writeToBuffer(buffer, offset, &spriteCount, sizeof(spriteCount));
 
     for (auto sprite : spritesToAddOrRemove)
     {
@@ -304,12 +306,16 @@ void Server::SendSpriteAddOrRemove()
             CatCore::Sprite* addSprite = GetSprite(sprite.first);
             CatCore::ServerUtils::writeToBuffer(buffer, offset, addSprite->GetName().c_str());
             CatCore::ServerUtils::writeToBuffer(buffer, offset, addSprite->GetTexture().c_str());
+
             CatCore::ServerUtils::serializeVector3(buffer, offset, addSprite->GetPosition());
+            CatCore::ServerUtils::writeToBuffer(buffer, offset, &addSprite->GetRotation(), sizeof(addSprite->GetRotation()));
+            CatCore::ServerUtils::writeToBuffer(buffer, offset, &addSprite->GetSize(), sizeof(addSprite->GetSize()));
         }
     }
 
     ENetPacket* packet = enet_packet_create(buffer, offset, ENET_PACKET_FLAG_RELIABLE);
     enet_host_broadcast(serverHost, 1, packet);
+    runspritesToAddOrRemove = false;
 }
 
 void Server::SendSpriteData()

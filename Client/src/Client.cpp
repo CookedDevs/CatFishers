@@ -143,7 +143,51 @@ bool Client::Run()
                     }
                 }
             }
-            else if (event.packet && event.packet->data[0] == CatCore::ServerReceiveType::Data)
+            else if (event.packet && event.packet->data[0] == CatCore::ServerReceiveType::SpriteAddOrRemove)
+            {
+                char* buffer = (char*)event.packet->data;
+                unsigned int offset = sizeof(uint8_t);
+
+                uint8_t spriteCount;
+                CatCore::ServerUtils::readFromBuffer(buffer, offset, &spriteCount, sizeof(spriteCount));
+
+                for (size_t i = 0; i < spriteCount; i++)
+                {
+                    bool addOrRemove;
+                    char* name = "";
+                    char* texture = "";
+                    CatCore::Vector3 position;
+                    float rotation;
+                    float size;
+
+                    CatCore::ServerUtils::readFromBuffer(buffer, offset, &addOrRemove, sizeof(bool));
+                    if (addOrRemove)
+                    {
+                        CatCore::ServerUtils::readTextFromBuffer(buffer, offset, name);
+                        LoadedTextures::UnLoadTex(sprites[name].GetTexture());
+                        sprites.erase(name);
+                    }
+                    else
+                    {
+                        CatCore::ServerUtils::readTextFromBuffer(buffer, offset, name);
+                        CatCore::ServerUtils::readTextFromBuffer(buffer, offset, texture);
+
+                        CatCore::ServerUtils::deserializeVector3(buffer, offset, position);
+                        CatCore::ServerUtils::readFromBuffer(buffer, offset, &rotation, sizeof(rotation));
+                        CatCore::ServerUtils::readFromBuffer(buffer, offset, &size, sizeof(size));
+
+                        CatCore::Sprite sprite;
+                        sprite.SetName(name);
+                        sprite.SetTexture(texture);
+                        sprite.SetPosition(position);
+                        sprite.SetRotation(rotation);
+                        sprite.SetSize(size);
+                        LoadedTextures::LoadTex(sprite.GetTexture());
+                        sprites[sprite.GetName()] = sprite;
+                    }
+                }
+            }
+            else if (event.packet && event.packet->data[0] == CatCore::ServerReceiveType::SpriteData)
             {
                 char* buffer = (char*)event.packet->data;
                 unsigned int offset = sizeof(uint8_t);
@@ -251,6 +295,7 @@ void Client::SendInputData()
     {
         ENetPacket* packet = enet_packet_create(buffer, offset, ENET_PACKET_FLAG_RELIABLE);
         enet_peer_send(serverPeer, 0, packet);
+        mouse.input = CatCore::NoInput;
     }
 }
 

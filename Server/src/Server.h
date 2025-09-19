@@ -26,11 +26,11 @@ public:
 	static void BroadcastExludeMessage(ENetPeer* excludedReseiver, const std::string message, CatCore::ServerReceiveType type);
 
 	static std::unordered_map<ENetPeer*, CatCore::Player>& GetPlayers() { return players; }
-	static const void AddPlayer(CatCore::Player player, ENetPeer* peer) { players[peer] = player; playersToAddOrRemove[peer] = false; }
+	static const void AddPlayer(CatCore::Player player, ENetPeer* peer) { players[peer] = player; playersToAddOrRemove[peer] = false; runplayersToAddOrRemove = true;}
 	static const void AddPlayer(ENetPeer* peer) { players[peer] = CatCore::Player(); }
-	static const void AddPlayerToSend(ENetPeer* peer) { playersToAddOrRemove[peer] = false; }
+	static const void AddPlayerToSend(ENetPeer* peer) { playersToAddOrRemove[peer] = false; runplayersToAddOrRemove = true;}
 
-	static const void RemovePlayer(ENetPeer* peer) { players.erase(peer); playersToAddOrRemove[peer] = true; }
+	static const void RemovePlayer(ENetPeer* peer) { players.erase(peer); playersToAddOrRemove[peer] = true; runplayersToAddOrRemove = true; }
 	static CatCore::Player* GetPlayer(ENetPeer* peer) 
 	{
 		if (players.find(peer) != players.end())
@@ -40,8 +40,8 @@ public:
 	}
 
 	static std::unordered_map<std::string, CatCore::Sprite>& GetSprites() { return sprites; }
-	static const void AddSprite(CatCore::Sprite sprite, std::string id) { sprites[id] = sprite; spritesToAddOrRemove[id] = false; }
-	static const void RemoveSprite(std::string id) { sprites.erase(id); spritesToAddOrRemove[id] = true; }
+	static const void AddSprite(CatCore::Sprite sprite, std::string id) { sprites[id] = sprite; spritesToAddOrRemove[id] = false; runspritesToAddOrRemove = true; }
+	static const void RemoveSprite(std::string id) { sprites.erase(id); spritesToAddOrRemove[id] = true; runspritesToAddOrRemove = true;}
 	static CatCore::Sprite* GetSprite(std::string id)
 	{
 		if (sprites.find(id) != sprites.end())
@@ -59,8 +59,10 @@ private:
 
 	static inline std::unordered_map<ENetPeer*, CatCore::Player> players;
 	static inline std::unordered_map<ENetPeer*, bool> playersToAddOrRemove;
+	static inline bool runplayersToAddOrRemove = false;
 
 	static inline std::unordered_map<std::string, CatCore::Sprite> sprites;
 	static inline std::unordered_map<std::string, bool> spritesToAddOrRemove;
+	static inline bool runspritesToAddOrRemove = false;
 };
 
