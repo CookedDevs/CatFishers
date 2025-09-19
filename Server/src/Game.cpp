@@ -21,30 +21,31 @@ void Game::Update() {
     }
 }
 
-void Game::ThrowBobber(const CatCore::Vector3& pos) {
+void Game::ThrowBobber(ENetPeer* peer) {
     Bobber bobber;
-    bobber.sprite.SetPosition(pos);
+    //bobber.sprite.SetPosition(pos);
     bobber.sprite.SetRotation(0);
     bobber.sprite.SetSize(0.1f);
     bobber.sprite.SetTexture("Resources/Images/bobber.png");
-    Server::GetPlayer(peer).Ge;
+    //Server::GetPlayer(peer).Ge;
 
     int waitSec = 3 + (rand() % 6);
     bobber.biteTime = std::chrono::steady_clock::now() + std::chrono::seconds(waitSec);
 
-    bobbers[peer] = bobber;
-    Server::AddSprite(bobber.sprite, "bobber" + peer);
+    //bobbers[peer] = bobber;
+    //Server::AddSprite(bobber.sprite, "bobber" + peer);
 }
 
 bool Game::ReelBobber() {
-    auto it = bobbers.find(peer);
-    if (it == bobbers.end()) return false;
+    //auto it = bobbers.find(peer);
+    //if (it == bobbers.end()) return false;
 
-    bool caught = it->second.ready;
-    bobbers.erase(it);
+    //bool caught = it->second.ready;
+    //bobbers.erase(it);
 
-    auto& sprites = Server::GetSprites();
-    Server::RemoveSprite("bobber" + peer);
+    //auto& sprites = Server::GetSprites();
+    //Server::RemoveSprite("bobber" + peer);
 
-    return caught;
+    //return caught;
+    return true;
 }

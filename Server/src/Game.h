@@ -22,8 +22,8 @@ public:
 	static void Init();
 	static void Update();
 
-	void Game::ThrowBobber(int playerId, const CatCore::Vector3& pos);
-	bool Game::ReelBobber(int playerId);
+	void ThrowBobber(ENetPeer* peer);
+	bool ReelBobber();
 
 private:
 };

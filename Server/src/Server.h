@@ -8,6 +8,7 @@
 #include "ServerUtils.h"
 #include "Player.h"
 #include "Sprite.h"
+#include "Inventory.h"
 
 class Server
 {
@@ -58,6 +59,7 @@ private:
 
 	static inline std::unordered_map<ENetPeer*, CatCore::Player> players;
 	static inline std::unordered_map<ENetPeer*, bool> playersToAddOrRemove;
+
 	static inline std::unordered_map<std::string, CatCore::Sprite> sprites;
 	static inline std::unordered_map<std::string, bool> spritesToAddOrRemove;
 };

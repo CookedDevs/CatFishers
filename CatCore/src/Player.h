@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include "CatMath.h"
 #include "ServerUtils.h"
+#include "Inventory.h"
 
 namespace CatCore
 {
@@ -34,7 +35,9 @@ namespace CatCore
 		void SetMouse(Mouse mouse) { this->mouse = mouse; }
 		const Mouse& GetMouse() { return mouse; }
 
+		Inventory& GetInventory() { return inventory; }
 	private:
+		Inventory inventory;
 
 		Vector3 position = { 0,0,0 };
 		std::string texture = "Resources/Images/cat.png";

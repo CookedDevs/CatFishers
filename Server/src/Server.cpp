@@ -72,6 +72,9 @@ bool Server::Run()
             enet_address_get_host_ip(&event.peer->address, addressBuffer, ENET_ADDRESS_MAX_LENGTH);
             std::cout << "New connection : " << addressBuffer << "\n";
             AddPlayer(event.peer);
+
+            GetPlayer(event.peer)->GetInventory().AddItem(1, 1, CatCore::Item());
+
             ServerCommands::SendCommandInfo(event.peer);
 
             break;
@@ -200,17 +203,18 @@ void Server::SendPlayerAddOrRemove()
     for (auto player : playersToAddOrRemove)
     {
         CatCore::ServerUtils::writeToBuffer(buffer, offset, &player.second, sizeof(bool));
+        CatCore::Player* thisPlayer = GetPlayer(player.first);
+
         if (player.second)
-        {
-            CatCore::Player* removePlayer = GetPlayer(player.first);
-            CatCore::ServerUtils::writeToBuffer(buffer, offset, removePlayer->GetName().c_str());
-        }
+            CatCore::ServerUtils::writeToBuffer(buffer, offset, thisPlayer->GetName().c_str());
         else
         {
-            CatCore::Player* addPlayer = GetPlayer(player.first);
-            CatCore::ServerUtils::writeToBuffer(buffer, offset, addPlayer->GetName().c_str());
-            CatCore::ServerUtils::writeToBuffer(buffer, offset, addPlayer->GetTexture().c_str());
-            CatCore::ServerUtils::serializeVector3(buffer, offset, addPlayer->GetPosition());
+            CatCore::ServerUtils::writeToBuffer(buffer, offset, thisPlayer->GetName().c_str());
+            CatCore::ServerUtils::writeToBuffer(buffer, offset, thisPlayer->GetTexture().c_str());
+            CatCore::ServerUtils::serializeVector3(buffer, offset, thisPlayer->GetPosition());
+
+            thisPlayer->GetInventory().serialize(buffer, offset);
+            thisPlayer->GetInventory().SetChanged(false);
         }
     }
 
@@ -224,13 +228,14 @@ void Server::SendPlayers()
     char buffer[bufferSize];
     unsigned int offset = 0;
 
-    std::vector<CatCore::Player> playerDataToSend;
+    std::vector<std::pair<CatCore::Player, bool>> playerDataToSend;
     for (auto player : players)
     { 
-        if (player.second.GetChanged() == true) 
+        if (player.second.GetChanged() == true)
         {
-            playerDataToSend.push_back(player.second); 
+            playerDataToSend.push_back({player.second, player.second.GetInventory().GetChanged()});
             player.second.SetChanged(false); 
+            player.second.GetInventory().SetChanged(false);
         }
     }
 
@@ -242,9 +247,16 @@ void Server::SendPlayers()
 
     for (auto player : playerDataToSend)
     {
-        CatCore::ServerUtils::writeToBuffer(buffer, offset, player.GetName().c_str());
-        CatCore::ServerUtils::writeToBuffer(buffer, offset, player.GetTexture().c_str());
-        CatCore::ServerUtils::serializeVector3(buffer, offset, player.GetPosition());
+        CatCore::ServerUtils::writeToBuffer(buffer, offset, player.first.GetName().c_str());
+        CatCore::ServerUtils::writeToBuffer(buffer, offset, player.first.GetTexture().c_str());
+        CatCore::ServerUtils::serializeVector3(buffer, offset, player.first.GetPosition());
+
+        CatCore::ServerUtils::writeToBuffer(buffer, offset, &player.second, sizeof(player.second));
+        if (player.second) 
+        { 
+            player.first.GetInventory().serialize(buffer, offset); 
+            player.first.GetInventory().SetChanged(false);
+        }
     }
 
     ENetPacket* packet = enet_packet_create(buffer, offset, ENET_PACKET_FLAG_RELIABLE);
@@ -316,8 +328,6 @@ void Server::SendSpriteData()
     ENetPacket* packet = enet_packet_create(buffer, offset, ENET_PACKET_FLAG_RELIABLE);
     enet_host_broadcast(serverHost, 1, packet);
 }
-
-
 
 void Server::SendPlayerData(const std::vector<uint8_t> data)
 {

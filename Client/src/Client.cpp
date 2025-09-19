@@ -110,6 +110,7 @@ bool Client::Run()
                         player.SetName(name);
                         player.SetTexture(texture);
                         player.SetPosition(position);
+                        player.GetInventory().DeSerialize(buffer, offset);
                         LoadedTextures::LoadTex(player.GetTexture());
                         players[player.GetName()] = player;
                     }
