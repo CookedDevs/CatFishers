@@ -121,18 +121,24 @@ bool Client::Run()
                 char* buffer = (char*)event.packet->data;
                 unsigned int offset = sizeof(uint8_t);
 
-                uint8_t playerCount;
-                CatCore::ServerUtils::readFromBuffer(buffer, offset, &playerCount, sizeof(playerCount));
+                uint8_t playerDataCount;
+                CatCore::ServerUtils::readFromBuffer(buffer, offset, &playerDataCount, sizeof(playerDataCount));
 
-                for (size_t i = 0; i < playerCount; i++)
+                for (size_t i = 0; i < playerDataCount; i++)
                 {
-                    char* name = "";
-                    char* texture = "";
+                    char* name;
+                    char* texture;
+                    bool inventory;
+
                     CatCore::Vector3 position;
 
                     CatCore::ServerUtils::readTextFromBuffer(buffer, offset, name);
                     CatCore::ServerUtils::readTextFromBuffer(buffer, offset, texture);
                     CatCore::ServerUtils::deserializeVector3(buffer, offset, position);
+
+                    CatCore::ServerUtils::writeToBuffer(buffer, offset, &inventory, sizeof(inventory));
+                    if (inventory)
+                        players[name].GetInventory().DeSerialize(buffer, offset);
 
                     players[name].SetPosition(position);
                     if (players[name].GetTexture() != texture)

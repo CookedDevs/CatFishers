@@ -31,7 +31,7 @@ namespace CatCore
 		std::string GetName() { return name; }
 
 		void SetChanged(bool changed) { this->changed = changed; }
-		bool GetChanged() { return changed; }
+		const bool& GetChanged() { return changed; }
 
 	private:
 		std::string name = "";
