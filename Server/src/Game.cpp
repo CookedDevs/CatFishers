@@ -31,8 +31,8 @@ void Game::ThrowBobber(ENetPeer* peer) {
     CatCore::Mouse mouse = player->GetMouse();
 
     Bobber bobber;
-    bobber.sprite.SetPosition(CatCore::Vector3{mouse.x, mouse.y, 0.0f});
-    bobber.sprite.SetSize(1.0f);
+    bobber.sprite.SetSize(0.1f);
+    bobber.sprite.SetPosition(CatCore::Vector3{(mouse.x) - 5.1f, (mouse.y) - 7.65f, 0.0f});
     bobber.sprite.SetTexture("Resources/Images/bobber.png");
 
     std::cout << std::to_string(mouse.x) << "  " << std::to_string(mouse.y) <<"\n";
@@ -58,6 +58,7 @@ bool Game::ReelBobber(ENetPeer* peer) {
 
     if (std::chrono::steady_clock::now() >= it->second.biteTime) {
         std::cout << "Erasing bobber\n";
+        Server::RemoveSprite("bobber" + std::to_string(peer->connectID));
         bobbers.erase(it); 
         std::cout << "Reelbobber ended\n";
         return true;
