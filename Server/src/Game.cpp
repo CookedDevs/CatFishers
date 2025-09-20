@@ -15,8 +15,10 @@ void Game::Init(){
 void Game::Update() {
     auto now = std::chrono::steady_clock::now();
 
-    for (auto& [peer, bobber] : bobbers) {
-        if (!bobber.ready && now >= bobber.biteTime) {
+    for (auto& [peer, bobber] : bobbers) 
+    {
+        if (!bobber.ready && now >= bobber.biteTime) 
+        {
             bobber.ready = true;
             std::cout << "Bobber ready to jank " << peer->connectID << "\n";
         }
@@ -44,6 +46,7 @@ void Game::ThrowBobber(ENetPeer* peer) {
     bobbers[peer] = bobber;
 
     Server::AddSprite(bobber.sprite, "bobber" + std::to_string(peer->connectID));
+    auto sprites = Server::GetSprites();
     std::cout << "Throwbobber ended" << "\n";
 }
 
@@ -64,6 +67,7 @@ bool Game::ReelBobber(ENetPeer* peer) {
         return true;
     }
 
+    Server::RemoveSprite("bobber" + std::to_string(peer->connectID));
     std::cout << "Reelbobber still active\n";
     return false;
 }

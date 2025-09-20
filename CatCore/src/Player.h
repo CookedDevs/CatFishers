@@ -12,6 +12,7 @@ namespace CatCore
 	{
 	public:
 		Player();
+		Player(std::string name);
 		~Player();
 
 		void SetPosition(Vector3 position) { this->position = position; changed = true; }

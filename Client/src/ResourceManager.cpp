@@ -45,6 +45,7 @@ Texture2D* LoadedTextures::GetTex(std::string texture)
 
 void LoadedTextures::UnLoadAllTex()
 {
+	if (loadedTextures.size() <= 0) return;
 	for (auto texture : loadedTextures)
 	{
 		UnloadTexture(texture.second.texture);

@@ -7,6 +7,12 @@ namespace CatCore
 
 	}
 
+	Player::Player(std::string name) : name(name)
+	{
+
+	}
+
+
 	Player::~Player()
 	{
 
