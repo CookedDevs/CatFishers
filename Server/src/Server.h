@@ -37,7 +37,7 @@ public:
 
 	static std::unordered_map<std::string, CatCore::Sprite>& GetSprites() { return sprites; }
 	static const void AddSprite(CatCore::Sprite sprite, std::string id) { sprite.SetName(id); sprites[id] = sprite; spritesToAddOrRemove[id] = false; runspritesToAddOrRemove = true; }
-	static const void RemoveSprite(std::string id) { spritesToAddOrRemove[id] = true; runspritesToAddOrRemove = true;}
+	static const void RemoveSprite(std::string id) { if (GetSprite(id) != nullptr) { spritesToAddOrRemove[id] = true; runspritesToAddOrRemove = true; } }
 	static CatCore::Sprite* GetSprite(std::string id)
 	{
 		if (sprites.find(id) != sprites.end())

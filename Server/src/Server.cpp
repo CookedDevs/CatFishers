@@ -290,21 +290,21 @@ void Server::SendSpriteAddOrRemove()
     for (auto sprite : spritesToAddOrRemove)
     {
         CatCore::ServerUtils::writeToBuffer(buffer, offset, &sprite.second, sizeof(bool));
+        CatCore::Sprite* sendSprite = GetSprite(sprite.first);
+
         if (sprite.second)
         {
-            CatCore::Sprite* removeSprite = GetSprite(sprite.first);
-            CatCore::ServerUtils::writeToBuffer(buffer, offset, removeSprite->GetName().c_str());
+            CatCore::ServerUtils::writeToBuffer(buffer, offset, sendSprite->GetName().c_str());
             sprites.erase(sprite.first);
         }
         else
         {
-            CatCore::Sprite* addSprite = GetSprite(sprite.first);
-            CatCore::ServerUtils::writeToBuffer(buffer, offset, addSprite->GetName().c_str());
-            CatCore::ServerUtils::writeToBuffer(buffer, offset, addSprite->GetTexture().c_str());
+            CatCore::ServerUtils::writeToBuffer(buffer, offset, sendSprite->GetName().c_str());
+            CatCore::ServerUtils::writeToBuffer(buffer, offset, sendSprite->GetTexture().c_str());
 
-            CatCore::ServerUtils::serializeVector3(buffer, offset, addSprite->GetPosition());
-            CatCore::ServerUtils::writeToBuffer(buffer, offset, &addSprite->GetRotation(), sizeof(addSprite->GetRotation()));
-            CatCore::ServerUtils::writeToBuffer(buffer, offset, &addSprite->GetSize(), sizeof(addSprite->GetSize()));
+            CatCore::ServerUtils::serializeVector3(buffer, offset, sendSprite->GetPosition());
+            CatCore::ServerUtils::writeToBuffer(buffer, offset, &sendSprite->GetRotation(), sizeof(sendSprite->GetRotation()));
+            CatCore::ServerUtils::writeToBuffer(buffer, offset, &sendSprite->GetSize(), sizeof(sendSprite->GetSize()));
         }
     }
 

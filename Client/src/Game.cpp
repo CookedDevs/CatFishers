@@ -27,10 +27,25 @@ void Game::Update()
     Client::Run();
     if (disconnected) return;
 
+    BeginDrawing();
+    ClearBackground(SKYBLUE);
+    
+    BeginMode2D(camera);
+    EndMode2D();
+
+    for (auto player : Client::players)
+        DrawTextureEx(*LoadedTextures::GetTex(player.second.GetTexture()), { player.second.GetPosition().x, player.second.GetPosition().y}, 0, 0.1f, WHITE);
+
+    for (auto sprite : Client::sprites)
+        DrawTextureEx(*LoadedTextures::GetTex(sprite.second.GetTexture()), { sprite.second.GetPosition().x, sprite.second.GetPosition().y }, sprite.second.GetRotation(), sprite.second.GetSize(), WHITE);
+
+    
     Client::ClearChangedInputs();
     Client::SetKey('A'); Client::SetKey('D');
     Client::SetKey('W'); Client::SetKey('S');
-    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+
+    bool usedJoystick = AndroidInput::Joystick();
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && !usedJoystick) {
         Vector2 mousepoint = GetMousePosition();
         Client::mouse.x = mousepoint.x;
         Client::mouse.y = mousepoint.y;
@@ -39,27 +54,12 @@ void Game::Update()
             Client::SendInputData();
             Client::SendFuncId(1);
             hasBobber = true;
-        } else {
+        }
+        else {
             Client::SendFuncId(2);
             hasBobber = false;
         }
     }
-
-    BeginDrawing();
-    ClearBackground(SKYBLUE);
-    
-    BeginMode2D(camera);
-    EndMode2D();
-
-    //Client::SendFuncId(1);
-
-    for (auto player : Client::players)
-        DrawTextureEx(*LoadedTextures::GetTex(player.second.GetTexture()), { player.second.GetPosition().x, player.second.GetPosition().y}, 0, 0.1f, WHITE);
-
-    for (auto sprite : Client::sprites)
-        DrawTextureEx(*LoadedTextures::GetTex(sprite.second.GetTexture()), { sprite.second.GetPosition().x, sprite.second.GetPosition().y }, sprite.second.GetRotation(), sprite.second.GetSize(), WHITE);
-
-    AndroidInput::Joystick();
 
     Client::SendInputData();
 

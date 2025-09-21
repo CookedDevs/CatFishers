@@ -26,13 +26,13 @@ void AndroidInput::GetSoftKeyboardInput(std::string& input, unsigned int size)
 #endif // _ANDROID_
 }
 
-void AndroidInput::Joystick()
+bool AndroidInput::Joystick()
 {
 #ifdef _ANDROID_
-    Vector2 circlePosition = { 110.f, (float)GetScreenHeight() - 110.f };
+    Vector2 circlePosition = { 100.f, (float)GetScreenHeight() - 110.f };
     float biggerRadius = 70.f;
 
-    Vector2 smallerCirclePosition = { 110.f, (float)GetScreenHeight() - 110.f };
+    Vector2 smallerCirclePosition = { 100.f, (float)GetScreenHeight() - 110.f };
     float smallerRadius = 30.f;
 
     float angle = 0.0f;
@@ -40,32 +40,33 @@ void AndroidInput::Joystick()
 
     smallerCirclePosition = GetMousePosition();
 
-    if (!CheckCollisionPointCircle(smallerCirclePosition, circlePosition, biggerRadius) && GetTouchPointCount() > 0)
+    if (CheckCollisionPointCircle(smallerCirclePosition, circlePosition, biggerRadius * 2) && GetTouchPointCount() > 0)
     {
-        dx = smallerCirclePosition.x - circlePosition.x;
-        dy = smallerCirclePosition.y - circlePosition.y;
+        if (!CheckCollisionPointCircle(smallerCirclePosition, circlePosition, biggerRadius))
+        {
+            dx = smallerCirclePosition.x - circlePosition.x;
+            dy = smallerCirclePosition.y - circlePosition.y;
 
-        angle = atan2f(dy, dx);
+            angle = atan2f(dy, dx);
 
-        dxx = (biggerRadius)*cosf(angle);
-        dyy = (biggerRadius)*sinf(angle);
+            dxx = (biggerRadius)*cosf(angle);
+            dyy = (biggerRadius)*sinf(angle);
 
-        smallerCirclePosition.x = circlePosition.x + dxx;
-        smallerCirclePosition.y = circlePosition.y + dyy;
+            smallerCirclePosition.x = circlePosition.x + dxx;
+            smallerCirclePosition.y = circlePosition.y + dyy;
+        }
+
+        unsigned int deadZoneSize = 8;
+
+        if (smallerCirclePosition.x <= circlePosition.x - deadZoneSize) Client::SetKey('A', true); else Client::SetKey('A', false);
+        if (smallerCirclePosition.x >= circlePosition.x + deadZoneSize) Client::SetKey('D', true); else Client::SetKey('D', false);
+        if (smallerCirclePosition.y <= circlePosition.y - deadZoneSize) Client::SetKey('W', true); else Client::SetKey('W', false);
+        if (smallerCirclePosition.y >= circlePosition.y + deadZoneSize) Client::SetKey('S', true); else Client::SetKey('S', false);
+
+        DrawCircleV(circlePosition, biggerRadius, LIGHTGRAY);
+        DrawCircleV(smallerCirclePosition, smallerRadius, RED);
+        return true;
     }
-    else
-    {
-        smallerCirclePosition = { 110.f, (float)GetScreenHeight() - 110.f };
-    }
-
-    unsigned int deadZoneSize = 14;
-
-    if (smallerCirclePosition.x <= circlePosition.x - deadZoneSize) Client::SetKey('A', true); else Client::SetKey('A', false);
-    if (smallerCirclePosition.x >= circlePosition.x + deadZoneSize) Client::SetKey('D', true); else Client::SetKey('D', false);
-    if (smallerCirclePosition.y <= circlePosition.y - deadZoneSize) Client::SetKey('W', true); else Client::SetKey('W', false);
-    if (smallerCirclePosition.y >= circlePosition.y + deadZoneSize) Client::SetKey('S', true); else Client::SetKey('S', false);
-
-    DrawCircleV(circlePosition, biggerRadius, LIGHTGRAY);
-    DrawCircleV(smallerCirclePosition, smallerRadius, RED);
 #endif
+    return false;
 }
