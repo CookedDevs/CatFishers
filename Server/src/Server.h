@@ -35,7 +35,7 @@ public:
 			return nullptr;
 	}
 
-	static std::unordered_map<std::string, CatCore::Sprite>& GetSprites() { return sprites; }
+	static std::map<std::string, CatCore::Sprite>& GetSprites() { return sprites; }
 	static const void AddSprite(CatCore::Sprite sprite, std::string id) { sprite.SetName(id); sprites[id] = sprite; spritesToAddOrRemove[id] = false; runspritesToAddOrRemove = true; }
 	static const void RemoveSprite(std::string id) { if (GetSprite(id) != nullptr) { spritesToAddOrRemove[id] = true; runspritesToAddOrRemove = true; } }
 	static CatCore::Sprite* GetSprite(std::string id)
@@ -57,7 +57,7 @@ private:
 	static inline std::unordered_map<ENetPeer*, bool> playersToAddOrRemove;
 	static inline bool runplayersToAddOrRemove = false;
 
-	static inline std::unordered_map<std::string, CatCore::Sprite> sprites;
+	static inline std::map<std::string, CatCore::Sprite> sprites;
 	static inline std::unordered_map<std::string, bool> spritesToAddOrRemove;
 	static inline bool runspritesToAddOrRemove = false;
 };

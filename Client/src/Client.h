@@ -32,7 +32,7 @@ public:
 	static ENetPeer* GetPeer(){return serverPeer;}
 
 	static inline std::unordered_map<std::string, CatCore::Player> players;
-	static inline std::unordered_map<std::string, CatCore::Sprite> sprites;
+	static inline std::map<std::string, CatCore::Sprite> sprites;
 
 	static std::function<void()> onConnected;
 	static std::function<void(const std::string&)> onDisconnected;

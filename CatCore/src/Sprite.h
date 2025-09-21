@@ -43,7 +43,7 @@ namespace CatCore
 		float rotation = 0.f;
 		float size = 0.1f;
 
-		bool renderUnderPlayers = false;
+		bool renderUnderPlayers = true;
 		bool changed = false;
 	};
 
