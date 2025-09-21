@@ -136,7 +136,7 @@ bool Client::Run()
                     CatCore::ServerUtils::readTextFromBuffer(buffer, offset, texture);
                     CatCore::ServerUtils::deserializeVector3(buffer, offset, position);
 
-                    CatCore::ServerUtils::writeToBuffer(buffer, offset, &inventory, sizeof(inventory));
+                    CatCore::ServerUtils::readFromBuffer(buffer, offset, &inventory, sizeof(inventory));
                     if (inventory)
                         players[name].GetInventory().DeSerialize(buffer, offset);
 
@@ -165,6 +165,7 @@ bool Client::Run()
                     CatCore::Vector3 position;
                     float rotation;
                     float size;
+                    bool renderBeforePlayer;
 
                     CatCore::ServerUtils::readFromBuffer(buffer, offset, &addOrRemove, sizeof(bool));
                     if (addOrRemove)
@@ -181,6 +182,7 @@ bool Client::Run()
                         CatCore::ServerUtils::deserializeVector3(buffer, offset, position);
                         CatCore::ServerUtils::readFromBuffer(buffer, offset, &rotation, sizeof(rotation));
                         CatCore::ServerUtils::readFromBuffer(buffer, offset, &size, sizeof(size));
+                        CatCore::ServerUtils::readFromBuffer(buffer, offset, &renderBeforePlayer, sizeof(renderBeforePlayer));
 
                         CatCore::Sprite sprite;
                         sprite.SetName(name);
@@ -188,6 +190,7 @@ bool Client::Run()
                         sprite.SetPosition(position);
                         sprite.SetRotation(rotation);
                         sprite.SetSize(size);
+                        sprite.SetRenderBeforePlayer(renderBeforePlayer);
                         LoadedTextures::LoadTex(sprite.GetTexture());
                         sprites[sprite.GetName()] = sprite;
                     }
@@ -208,6 +211,7 @@ bool Client::Run()
                     CatCore::Vector3 position;
                     float rotation;
                     float size;
+                    bool renderBeforePlayer;
 
                     CatCore::ServerUtils::readTextFromBuffer(buffer, offset, name);
                     CatCore::ServerUtils::readTextFromBuffer(buffer, offset, texturePath);
@@ -215,6 +219,7 @@ bool Client::Run()
                     CatCore::ServerUtils::deserializeVector3(buffer, offset, position);
                     CatCore::ServerUtils::readFromBuffer(buffer, offset, &rotation, sizeof(rotation));
                     CatCore::ServerUtils::readFromBuffer(buffer, offset, &size, sizeof(size));
+                    CatCore::ServerUtils::readFromBuffer(buffer, offset, &renderBeforePlayer, sizeof(renderBeforePlayer));
 
                     sprites[name].SetPosition(position);
                     if (sprites[name].GetTexture() != texturePath)

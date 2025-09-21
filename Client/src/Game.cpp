@@ -33,11 +33,14 @@ void Game::Update()
     BeginMode2D(camera);
     EndMode2D();
 
+    for (auto sprite : Client::sprites)
+        if (sprite.second.GetRenderBeforePlayer()) DrawTextureEx(*LoadedTextures::GetTex(sprite.second.GetTexture()), { sprite.second.GetPosition().x, sprite.second.GetPosition().y }, sprite.second.GetRotation(), sprite.second.GetSize(), WHITE);
+
     for (auto player : Client::players)
         DrawTextureEx(*LoadedTextures::GetTex(player.second.GetTexture()), { player.second.GetPosition().x, player.second.GetPosition().y}, 0, 0.1f, WHITE);
 
     for (auto sprite : Client::sprites)
-        DrawTextureEx(*LoadedTextures::GetTex(sprite.second.GetTexture()), { sprite.second.GetPosition().x, sprite.second.GetPosition().y }, sprite.second.GetRotation(), sprite.second.GetSize(), WHITE);
+        if (!sprite.second.GetRenderBeforePlayer()) DrawTextureEx(*LoadedTextures::GetTex(sprite.second.GetTexture()), { sprite.second.GetPosition().x, sprite.second.GetPosition().y }, sprite.second.GetRotation(), sprite.second.GetSize(), WHITE);
 
     
     Client::ClearChangedInputs();

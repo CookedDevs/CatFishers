@@ -30,6 +30,9 @@ namespace CatCore
 		void SetName(std::string name) { this->name = name; changed = true; }
 		std::string GetName() { return name; }
 
+		void SetRenderBeforePlayer(bool renderUnderPlayers) { this->renderUnderPlayers = renderUnderPlayers; changed = true;}
+		const bool& GetRenderBeforePlayer() { return renderUnderPlayers; }
+
 		void SetChanged(bool changed) { this->changed = changed; }
 		const bool& GetChanged() { return changed; }
 
@@ -40,6 +43,7 @@ namespace CatCore
 		float rotation = 0.f;
 		float size = 0.1f;
 
+		bool renderUnderPlayers = false;
 		bool changed = false;
 	};
 

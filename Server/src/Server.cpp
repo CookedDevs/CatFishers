@@ -305,6 +305,7 @@ void Server::SendSpriteAddOrRemove()
             CatCore::ServerUtils::serializeVector3(buffer, offset, sendSprite->GetPosition());
             CatCore::ServerUtils::writeToBuffer(buffer, offset, &sendSprite->GetRotation(), sizeof(sendSprite->GetRotation()));
             CatCore::ServerUtils::writeToBuffer(buffer, offset, &sendSprite->GetSize(), sizeof(sendSprite->GetSize()));
+            CatCore::ServerUtils::writeToBuffer(buffer, offset, &sendSprite->GetRenderBeforePlayer(), sizeof(sendSprite->GetRenderBeforePlayer()));
         }
     }
 
@@ -339,7 +340,11 @@ void Server::SendSprites()
     {
         CatCore::ServerUtils::writeToBuffer(buffer, offset, sprite.GetName().c_str());
         CatCore::ServerUtils::writeToBuffer(buffer, offset, sprite.GetTexture().c_str());
+
         CatCore::ServerUtils::serializeVector3(buffer, offset, sprite.GetPosition());
+        CatCore::ServerUtils::writeToBuffer(buffer, offset, &sprite.GetRotation(), sizeof(sprite.GetRotation()));
+        CatCore::ServerUtils::writeToBuffer(buffer, offset, &sprite.GetSize(), sizeof(sprite.GetSize()));
+        CatCore::ServerUtils::writeToBuffer(buffer, offset, &sprite.GetRenderBeforePlayer(), sizeof(sprite.GetRenderBeforePlayer()));
     }
 
     if (spriteCount > 0)
