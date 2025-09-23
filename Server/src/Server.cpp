@@ -52,11 +52,6 @@ void Server::Close()
     enet_host_destroy(serverHost);
 }
 
-void TestFunc()
-{
-    std::cout << "Test";
-}
-
 bool Server::Run()
 {
     eventStatus = enet_host_service(serverHost, &event, 8);
