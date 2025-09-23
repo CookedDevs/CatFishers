@@ -232,6 +232,7 @@ void Server::SendPlayerAddOrRemove()
     ENetPacket* packet = enet_packet_create(buffer, offset, ENET_PACKET_FLAG_RELIABLE);
     enet_host_broadcast(serverHost, 1, packet);
     runplayersToAddOrRemove = false;
+    playersToAddOrRemove.clear();
 }
 
 void Server::SendPlayers()
@@ -311,7 +312,9 @@ void Server::SendSpriteAddOrRemove()
 
     ENetPacket* packet = enet_packet_create(buffer, offset, ENET_PACKET_FLAG_RELIABLE);
     enet_host_broadcast(serverHost, 1, packet);
+
     runspritesToAddOrRemove = false;
+    spritesToAddOrRemove.clear();
 }
 
 void Server::SendSprites()
@@ -354,9 +357,42 @@ void Server::SendSprites()
     }
 }
 
-void Server::SendScene()
+void Server::SendScene(ENetPeer* peer)
 {
+    const size_t bufferSize = 8192;
+    char buffer[bufferSize];
+    unsigned int offset = 0;
 
+    uint8_t messageType = CatCore::SceneData;
+    CatCore::ServerUtils::writeToBuffer(buffer, offset, &messageType, sizeof(messageType));
+
+    uint8_t playerDataCount = players.size();
+    CatCore::ServerUtils::writeToBuffer(buffer, offset, &playerDataCount, sizeof(playerDataCount));
+
+    for (auto player : players)
+    {
+        CatCore::ServerUtils::writeToBuffer(buffer, offset, player.second.GetName().c_str());
+        CatCore::ServerUtils::writeToBuffer(buffer, offset, player.second.GetTexture().c_str());
+        CatCore::ServerUtils::serializeVector3(buffer, offset, player.second.GetPosition());
+        player.second.GetInventory().serialize(buffer, offset);
+    }
+
+    uint8_t spriteCount = sprites.size();
+    CatCore::ServerUtils::writeToBuffer(buffer, offset, &spriteCount, sizeof(spriteCount));
+
+    for (auto sprite : sprites)
+    {
+        CatCore::ServerUtils::writeToBuffer(buffer, offset, sprite.second.GetName().c_str());
+        CatCore::ServerUtils::writeToBuffer(buffer, offset, sprite.second.GetTexture().c_str());
+
+        CatCore::ServerUtils::serializeVector3(buffer, offset, sprite.second.GetPosition());
+        CatCore::ServerUtils::writeToBuffer(buffer, offset, &sprite.second.GetRotation(), sizeof(sprite.second.GetRotation()));
+        CatCore::ServerUtils::writeToBuffer(buffer, offset, &sprite.second.GetSize(), sizeof(sprite.second.GetSize()));
+        CatCore::ServerUtils::writeToBuffer(buffer, offset, &sprite.second.GetRenderBeforePlayer(), sizeof(sprite.second.GetRenderBeforePlayer()));
+    }
+
+    ENetPacket* packet = enet_packet_create(buffer, offset, ENET_PACKET_FLAG_RELIABLE);
+    enet_peer_send(peer, 0, packet);
 }
 
 void Server::BroadcastMessage(const std::string message)
