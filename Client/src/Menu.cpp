@@ -175,7 +175,7 @@ void Menu::Init()
 {
     camera.target = Vector2{ 0.0f, 0.0f };
 
-    TextFont = LoadFontEx("Resources/fredoka-one.ttf", 100, nullptr, 0);
+    TextFont = LoadFontEx("Resources/Fonts/fredoka-one.ttf", 100, nullptr, 0);
     InitButton(newGameBtn,  "Resources/Images/newgame.png",  { screenWidth/2.0f, screenHeight/2.0f - 110 }, 0.5f , true);
     InitButton(joinGameBtn, "Resources/Images/joingame.png", { screenWidth/2.0f, screenHeight/2.0f - 50  }, 0.5f , true);
     InitButton(settingsBtn, "Resources/Images/settings.png", { screenWidth/2.0f, screenHeight/2.0f + 10  }, 0.5f , true);
