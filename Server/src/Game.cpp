@@ -14,6 +14,7 @@ void Game::Init(){
 
 void Game::Update() {
     auto now = std::chrono::steady_clock::now();
+    srand(time(NULL));
 
     for (auto& [peer, bobber] : bobbers) 
     {

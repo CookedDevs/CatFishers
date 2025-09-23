@@ -22,6 +22,7 @@ public:
 	static void SendPlayers();
 	static void SendSpriteAddOrRemove();
 	static void SendSprites();
+	static void SendScene();
 	static void BroadcastExludeMessage(ENetPeer* excludedReseiver, const std::string message, CatCore::ServerReceiveType type);
 
 	static std::unordered_map<ENetPeer*, CatCore::Player>& GetPlayers() { return players; }

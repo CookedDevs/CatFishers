@@ -354,6 +354,10 @@ void Server::SendSprites()
     }
 }
 
+void Server::SendScene()
+{
+
+}
 
 void Server::BroadcastMessage(const std::string message)
 {
