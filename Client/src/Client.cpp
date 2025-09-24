@@ -23,7 +23,7 @@ void Client::Init()
 
     /* Build an IPv6 or IPv4 address, depending on what the domain resolves to */
     enet_address_set_host(&address, ENET_ADDRESS_TYPE_ANY, serverIp.c_str());
-    address.port = 1234;
+    address.port = 22556;
 
     enet_address_get_host_ip(&address, addressBuffer, ENET_ADDRESS_MAX_LENGTH);
     std::cout << "Connecting to " << addressBuffer << "\n";

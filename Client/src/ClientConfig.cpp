@@ -30,7 +30,7 @@ void ClientConfig::Save()
 
     if (file.good() && file.is_open())
     {
-        file << data;
+        file << data.dump(4);
         file.close();
     }
 }

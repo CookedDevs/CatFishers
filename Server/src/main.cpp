@@ -1,9 +1,11 @@
 #include <iostream>
 #include "Server.h"
 #include "Game.h"
+#include "ServerConfig.h"
 
 int main()
 {
+    ServerConfig::Init();
     Server::Init();
     Game::Init();
 
