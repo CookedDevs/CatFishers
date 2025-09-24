@@ -10,6 +10,7 @@
 #include "ServerCommands.h"
 #include "CatMath.h"
 #include "Game.h"
+#include "ServerConfig.h"
 
 void Server::Init()
 {
@@ -29,12 +30,16 @@ void Server::Init()
 
     /* Build the listen address (any + port) */
     //enet_address_build_any(&address, ENET_ADDRESS_TYPE_IPV6);
-    enet_address_set_host(&address, ENET_ADDRESS_TYPE_IPV6, "localhost");
-    address.port = 1234;
+
+    ENetAddressType type = ENET_ADDRESS_TYPE_IPV4;
+    if (ServerConfig::GetIsIPv6()) type = ENET_ADDRESS_TYPE_IPV6;
+
+    enet_address_set_host(&address, type, ServerConfig::GetIP().c_str());
+    address.port = ServerConfig::GetPort();
 
     /* Create a host using enet_host_create, address type has to match the address,  */
     /* except for the combination IPv6 + Any which enables dual stack (IPv6 socket allowing IPv4 connection)  */
-    serverHost = enet_host_create(ENET_ADDRESS_TYPE_IPV6, &address, 32, 2, 0, 0);
+    serverHost = enet_host_create(type, &address, 32, 2, 0, 0);
     if (serverHost == NULL)
     {
         std::cerr << "An error occured while trying to create an ENet6 server host!\n";
@@ -43,6 +48,9 @@ void Server::Init()
     else
         std::cout << "ENet server host started\n\n\n";
 
+
+    std::cout << ServerConfig::GetIP() << " " << ServerConfig::GetPort() << " " << ServerConfig::GetIsIPv6() << "\n";
+
     enet_host_bandwidth_throttle(serverHost);
     eventStatus = 1;
 }
@@ -50,11 +58,6 @@ void Server::Init()
 void Server::Close()
 {
     enet_host_destroy(serverHost);
-}
-
-void TestFunc()
-{
-    std::cout << "Test";
 }
 
 bool Server::Run()
@@ -232,6 +235,7 @@ void Server::SendPlayerAddOrRemove()
     ENetPacket* packet = enet_packet_create(buffer, offset, ENET_PACKET_FLAG_RELIABLE);
     enet_host_broadcast(serverHost, 1, packet);
     runplayersToAddOrRemove = false;
+    playersToAddOrRemove.clear();
 }
 
 void Server::SendPlayers()
@@ -311,7 +315,9 @@ void Server::SendSpriteAddOrRemove()
 
     ENetPacket* packet = enet_packet_create(buffer, offset, ENET_PACKET_FLAG_RELIABLE);
     enet_host_broadcast(serverHost, 1, packet);
+
     runspritesToAddOrRemove = false;
+    spritesToAddOrRemove.clear();
 }
 
 void Server::SendSprites()
@@ -354,6 +360,43 @@ void Server::SendSprites()
     }
 }
 
+void Server::SendScene(ENetPeer* peer)
+{
+    const size_t bufferSize = 8192;
+    char buffer[bufferSize];
+    unsigned int offset = 0;
+
+    uint8_t messageType = CatCore::SceneData;
+    CatCore::ServerUtils::writeToBuffer(buffer, offset, &messageType, sizeof(messageType));
+
+    uint8_t playerDataCount = players.size();
+    CatCore::ServerUtils::writeToBuffer(buffer, offset, &playerDataCount, sizeof(playerDataCount));
+
+    for (auto player : players)
+    {
+        CatCore::ServerUtils::writeToBuffer(buffer, offset, player.second.GetName().c_str());
+        CatCore::ServerUtils::writeToBuffer(buffer, offset, player.second.GetTexture().c_str());
+        CatCore::ServerUtils::serializeVector3(buffer, offset, player.second.GetPosition());
+        player.second.GetInventory().serialize(buffer, offset);
+    }
+
+    uint8_t spriteCount = sprites.size();
+    CatCore::ServerUtils::writeToBuffer(buffer, offset, &spriteCount, sizeof(spriteCount));
+
+    for (auto sprite : sprites)
+    {
+        CatCore::ServerUtils::writeToBuffer(buffer, offset, sprite.second.GetName().c_str());
+        CatCore::ServerUtils::writeToBuffer(buffer, offset, sprite.second.GetTexture().c_str());
+
+        CatCore::ServerUtils::serializeVector3(buffer, offset, sprite.second.GetPosition());
+        CatCore::ServerUtils::writeToBuffer(buffer, offset, &sprite.second.GetRotation(), sizeof(sprite.second.GetRotation()));
+        CatCore::ServerUtils::writeToBuffer(buffer, offset, &sprite.second.GetSize(), sizeof(sprite.second.GetSize()));
+        CatCore::ServerUtils::writeToBuffer(buffer, offset, &sprite.second.GetRenderBeforePlayer(), sizeof(sprite.second.GetRenderBeforePlayer()));
+    }
+
+    ENetPacket* packet = enet_packet_create(buffer, offset, ENET_PACKET_FLAG_RELIABLE);
+    enet_peer_send(peer, 0, packet);
+}
 
 void Server::BroadcastMessage(const std::string message)
 {

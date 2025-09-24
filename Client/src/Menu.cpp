@@ -1,5 +1,6 @@
 #include "Menu.h"
 #include "AndroidInput.h"
+#include "ClientConfig.h"
 #include <vector>
 
 const int screenWidth = 800;
@@ -174,7 +175,7 @@ void Menu::Init()
 {
     camera.target = Vector2{ 0.0f, 0.0f };
 
-    TextFont = LoadFontEx("Resources/fredoka-one.ttf", 100, nullptr, 0);
+    TextFont = LoadFontEx("Resources/Fonts/fredoka-one.ttf", 100, nullptr, 0);
     InitButton(newGameBtn,  "Resources/Images/newgame.png",  { screenWidth/2.0f, screenHeight/2.0f - 110 }, 0.5f , true);
     InitButton(joinGameBtn, "Resources/Images/joingame.png", { screenWidth/2.0f, screenHeight/2.0f - 50  }, 0.5f , true);
     InitButton(settingsBtn, "Resources/Images/settings.png", { screenWidth/2.0f, screenHeight/2.0f + 10  }, 0.5f , true);
@@ -182,7 +183,10 @@ void Menu::Init()
     InitButton(backBtn, "Resources/Images/back.png", { screenWidth/2.0f - 145, screenHeight/2.0f + 10 }, 0.5f , false);
 
     InitTextfield(serverIpTxtField, "Resources/Images/serverip.png", { screenWidth/2.0f + 40, screenHeight/2.0f + 10 }, 0.5f , false);
+    serverIpTxtField.text = ClientConfig::GetIP();
+
     InitTextfield(playerNamepTxtField, "Resources/Images/playername.png", { screenWidth/2.0f + 57, screenHeight/2.0f - 50 }, 0.5f , false);
+    playerNamepTxtField.text = ClientConfig::GetName();
 
     newGameBtn.onClick = []() { std::cout << "Starting new game...\n"; };
     joinGameBtn.onClick = []() {
@@ -196,11 +200,15 @@ void Menu::Init()
     };
     settingsBtn.onClick = []() { std::cout << "Opening settings...\n"; };
     playBtn.onClick = []() {
+        ClientConfig::SetIP(serverIpTxtField.text);
+        ClientConfig::SetName(playerNamepTxtField.text);
+        ClientConfig::Save();
+
         Client::SetIp(serverIpTxtField.text);
         Client::Init();
     };
-    backBtn.onClick = []() { 
-        serverIpTxtField.text = playerNamepTxtField.text = "";        
+    backBtn.onClick = []() 
+    {     
         playBtn.enabled = false;
         backBtn.enabled = false;
         playerNamepTxtField.enabled = false;

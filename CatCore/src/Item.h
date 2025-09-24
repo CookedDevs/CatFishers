@@ -1,11 +1,13 @@
 #pragma once
 #include <string>
+#include <cstdint>
 
 namespace CatCore
 {
 	class Item
 	{
 	public:
+		Item(std::string name, std::string description, std::string texture, uint32_t value, uint8_t stackSize = 32);
 		Item();
 		~Item();
 
@@ -35,7 +37,7 @@ namespace CatCore
 		std::string description = "nodescription";
 		std::string texture = "notexture";
 		
-		uint8_t value = 0;
+		uint32_t value = 0;
 		uint8_t stackSize = 32;
 		bool changed = false;
 	};

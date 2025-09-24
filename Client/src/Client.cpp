@@ -23,7 +23,7 @@ void Client::Init()
 
     /* Build an IPv6 or IPv4 address, depending on what the domain resolves to */
     enet_address_set_host(&address, ENET_ADDRESS_TYPE_ANY, serverIp.c_str());
-    address.port = 1234;
+    address.port = 22556;
 
     enet_address_get_host_ip(&address, addressBuffer, ENET_ADDRESS_MAX_LENGTH);
     std::cout << "Connecting to " << addressBuffer << "\n";
@@ -200,6 +200,65 @@ bool Client::Run()
             {
                 char* buffer = (char*)event.packet->data;
                 unsigned int offset = sizeof(uint8_t);
+
+                uint8_t spriteCount;
+                CatCore::ServerUtils::readFromBuffer(buffer, offset, &spriteCount, sizeof(spriteCount));
+
+                for (size_t i = 0; i < spriteCount; i++)
+                {
+                    char* name = "";
+                    char* texturePath = "";
+                    CatCore::Vector3 position;
+                    float rotation;
+                    float size;
+                    bool renderBeforePlayer;
+
+                    CatCore::ServerUtils::readTextFromBuffer(buffer, offset, name);
+                    CatCore::ServerUtils::readTextFromBuffer(buffer, offset, texturePath);
+
+                    CatCore::ServerUtils::deserializeVector3(buffer, offset, position);
+                    CatCore::ServerUtils::readFromBuffer(buffer, offset, &rotation, sizeof(rotation));
+                    CatCore::ServerUtils::readFromBuffer(buffer, offset, &size, sizeof(size));
+                    CatCore::ServerUtils::readFromBuffer(buffer, offset, &renderBeforePlayer, sizeof(renderBeforePlayer));
+
+                    sprites[name].SetPosition(position);
+                    if (sprites[name].GetTexture() != texturePath)
+                    {
+                        LoadedTextures::UnLoadTex(sprites[name].GetTexture());
+                        sprites[name].SetTexture(texturePath);
+                        LoadedTextures::LoadTex(sprites[name].GetTexture());
+                    }
+                }
+            }
+            else if (event.packet && event.packet->data[0] == CatCore::ServerReceiveType::SceneData)
+            {
+                char* buffer = (char*)event.packet->data;
+                unsigned int offset = sizeof(uint8_t);
+
+                uint8_t playerCount;
+                CatCore::ServerUtils::readFromBuffer(buffer, offset, &playerCount, sizeof(playerCount));
+
+                for (size_t i = 0; i < playerCount; i++)
+                {
+                    char* plrname;
+                    char* plrtexture;
+                    bool inventory;
+
+                    CatCore::Vector3 plrposition;
+
+                    CatCore::ServerUtils::readTextFromBuffer(buffer, offset, plrname);
+                    CatCore::ServerUtils::readTextFromBuffer(buffer, offset, plrtexture);
+                    CatCore::ServerUtils::deserializeVector3(buffer, offset, plrposition);
+                    players[plrname].GetInventory().DeSerialize(buffer, offset);
+
+                    players[plrname].SetPosition(plrposition);
+                    if (players[plrname].GetTexture() != plrtexture)
+                    {
+                        LoadedTextures::UnLoadTex(players[plrname].GetTexture());
+                        players[plrname].SetTexture(plrtexture);
+                        LoadedTextures::LoadTex(players[plrname].GetTexture());
+                    }
+                }
 
                 uint8_t spriteCount;
                 CatCore::ServerUtils::readFromBuffer(buffer, offset, &spriteCount, sizeof(spriteCount));

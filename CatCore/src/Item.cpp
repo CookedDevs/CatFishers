@@ -3,6 +3,15 @@
 
 namespace CatCore
 {
+	Item::Item(std::string name, std::string description, std::string texture, uint32_t value, uint8_t stackSize)
+	{
+		this->name = name;
+		this->description = description;
+		this->texture = texture;
+		this->value = value;
+		this->stackSize = stackSize;
+	}
+
 	Item::Item()
 	{
 	}

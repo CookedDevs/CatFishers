@@ -22,10 +22,17 @@ public:
 	static void SendPlayers();
 	static void SendSpriteAddOrRemove();
 	static void SendSprites();
+	static void SendScene(ENetPeer* peer);
 	static void BroadcastExludeMessage(ENetPeer* excludedReseiver, const std::string message, CatCore::ServerReceiveType type);
 
 	static std::unordered_map<ENetPeer*, CatCore::Player>& GetPlayers() { return players; }
-	static const void AddPlayer(CatCore::Player player, ENetPeer* peer) { players[peer] = player; playersToAddOrRemove[peer] = false; runplayersToAddOrRemove = true;}
+	static const void AddPlayer(CatCore::Player player, ENetPeer* peer) 
+	{ 
+		players[peer] = player;
+		playersToAddOrRemove[peer] = false;
+		runplayersToAddOrRemove = true;
+		SendScene(peer);
+	}
 	static const void RemovePlayer(ENetPeer* peer) { playersToAddOrRemove[peer] = true; runplayersToAddOrRemove = true; }
 	static CatCore::Player* GetPlayer(ENetPeer* peer) 
 	{
