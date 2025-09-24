@@ -6,6 +6,17 @@
 #include <iostream>
 #include <vector>
 
+#define NUM_FRAMES  2
+
+struct Itemslot {
+	Texture2D texture;
+	Rectangle bounds;
+	Rectangle sourceRec;
+	float frameHeight;
+	int state;
+	bool enabled;
+};
+
 class Game : public State
 {
 public:

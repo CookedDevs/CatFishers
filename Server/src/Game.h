@@ -6,9 +6,18 @@
 #include <chrono>
 
 struct Bobber {
-    CatCore::Sprite sprite;
+    std::string spriteid;
     std::chrono::steady_clock::time_point biteTime;
     bool ready = false;
+	std::chrono::steady_clock::time_point floatStart;
+	std::chrono::seconds biteDuration;
+	CatCore::Vector3 pos;
+	CatCore::Vector3 basePos;
+	float randomPhase;
+
+	float lastYankStrength = 0.0f;
+	float yankStart = -999.0f;
+	float nextYankTime = 0.0f;
 };
 
 
