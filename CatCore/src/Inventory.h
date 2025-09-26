@@ -13,7 +13,7 @@ namespace CatCore
 	class Inventory
 	{
 	public:
-		Inventory(uint8_t width = 8, uint8_t height = 4);
+		Inventory(uint8_t width = 7, uint8_t height = 0);
 		~Inventory();
 
 		bool AddItem(uint8_t slotX, uint8_t slotY, Item item, uint8_t count = 1);

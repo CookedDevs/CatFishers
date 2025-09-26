@@ -1,5 +1,6 @@
 #include "ServerCommands.h"
 #include "Server.h"
+#include "Fish.h"
 
 #include <sstream>
 #include <nlohmann/json.hpp>
@@ -76,7 +77,10 @@ void ServerCommands::InitializeCommands() // TODO: permissions
 	{
 		Server::AddPlayer(CatCore::Player(args[1]), sender);
 		CatCore::ServerUtils::SendMessage(sender, "Name set to : " + args[1] + "\n");
+		CatCore::Player* player = Server::GetPlayer(sender);
+		CatCore::Inventory inv = player->GetInventory();
+		inv.AddItem(1, 0, CatCore::Fish::GetRandomFish());
 		return true;
-	};
+	}; 
 	commands.push_back(name);
 }

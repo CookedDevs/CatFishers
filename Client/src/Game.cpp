@@ -1,11 +1,15 @@
 #include "Game.h"
 #include "Player.h"
 #include "Client.h"
+#include "ClientConfig.h"
 #include "AndroidInput.h"
 
 static Vector2 mousePoint = { 0.0f, 0.0f };
 
 static std::vector<Itemslot> itemslots;
+
+CatCore::Player& player = Client::players[ClientConfig::GetName()];
+CatCore::Inventory* inv = nullptr;
 
 void Game::UnInit()
 {
@@ -14,9 +18,9 @@ void Game::UnInit()
     LoadedTextures::UnLoadAllTex();
 }
 
-static Itemslot CreateItemSlot(const char* path, Vector2 pos, float scale, bool enabled) {
+static Itemslot CreateItemSlot(Texture2D tex, Vector2 pos, float scale, bool enabled) {
     Itemslot itemslot{};
-    itemslot.texture = LoadTexture(path);
+    itemslot.texture = tex;
     itemslot.frameHeight = (float)itemslot.texture.height / NUM_FRAMES;
     pos.x -= itemslot.texture.width * scale / 2.0f;
     pos.y -= itemslot.frameHeight * scale / 2.0f;
@@ -28,8 +32,26 @@ static Itemslot CreateItemSlot(const char* path, Vector2 pos, float scale, bool 
     return itemslot;
 }
 
-static void DrawItemSlot(const Itemslot& slot) {
+static void DrawItemSlot(const Itemslot& slot, int index) {
     DrawTexturePro(slot.texture, slot.sourceRec, slot.bounds, Vector2{ 0, 0 }, 0.0f, WHITE);
+
+    CatCore::Inventory* invCheck = &player.GetInventory();
+
+    if (inv != invCheck)
+    {
+        CatCore::Inventory* inv = invCheck;
+        auto& item = player.GetInventory().GetSlot(index + 1, 0).item;
+        if (item.GetTexture() != "notexture") {
+            Texture2D* texPtr = LoadedTextures::GetTex(item.GetTexture());
+            std::cout << item.GetTexture() + "/n";
+            if (texPtr)
+            {
+                Rectangle src = { 0, 0, (float)texPtr->width, (float)texPtr->height};
+                Rectangle dst = slot.bounds;
+                DrawTexturePro(*texPtr, src, dst, Vector2{ 0, 0 }, 0.0f, WHITE);
+            }
+        }
+    }
 }
 
 
@@ -45,7 +67,8 @@ void Game::Init()
         CurrentState::SetState(new Menu);
     };
 
-    const char* slotTexturePath = "Resources/Images/itemslot.png";
+
+    Texture2D* tex = LoadedTextures::LoadTex("Resources/Images/itemslot.png");
     float scale = 0.13f;
     Vector2 startPos = { 400.0f, 400.0f };
     itemslots.resize(7);
@@ -55,7 +78,8 @@ void Game::Init()
 
     for (int i = 0; i < itemslots.size(); i++) {
         Vector2 pos = { startPos.x + i * spacing, startPos.y };
-        itemslots[i] = CreateItemSlot(slotTexturePath, pos, scale, true);
+        itemslots[i] = CreateItemSlot(*tex, pos, scale, true);
+        LoadedTextures::LoadTex(player.GetInventory().GetSlot(i, 0).item.GetTexture());
     }
 
 }
@@ -101,7 +125,7 @@ void Game::Update()
     Client::SetKey('W'); Client::SetKey('S');
 
     bool mouseOverAny = false;
-    for (auto& b : itemslots) DrawItemSlot(b);
+    for (int i = 0; i < itemslots.size(); i++) DrawItemSlot(itemslots[i], i);
     for (auto& e : itemslots) UpdateItemSlot(e, mouseOverAny);
 
     bool usedJoystick = AndroidInput::Joystick();

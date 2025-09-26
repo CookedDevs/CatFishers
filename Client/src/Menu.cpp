@@ -151,7 +151,7 @@ static void DrawTextfield(const Textfield &txtfld) {
 
 
     while (fontSize > minFontSize &&
-           MeasureTextEx(TextFont, displayText.c_str(), fontSize, spacing).x > txtfld.bounds.width - 10) {
+        MeasureTextEx(TextFont, displayText.c_str(), fontSize, spacing).x > txtfld.bounds.width - 10) {
         fontSize -= 1.0f;
     }
 

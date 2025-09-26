@@ -3,6 +3,8 @@
 #include <iostream>
 #include <map>
 #include "Commands.h"
+#include "CatCore.h"
+#include "Inventory.h"
 
 struct Command
 {
