@@ -6,6 +6,16 @@ target("Server")
     add_files("src/**.cpp")
     add_headerfiles("src/**.h")
 
+    if is_mode("debug") then
+        set_symbols("debug")    -- enables debug symbols/pdb generation for supported toolchains
+    end
+
+    -- MSVC: ensure compiler / linker flags
+    if is_mode("debug") and is_plat("windows") then
+        add_cxflags("/Zi", {force = true})            -- generate debug info
+        add_ldflags("/DEBUG", {force = true})         -- enable generating .pdb in linker
+    end
+
     -- Include directories
     add_includedirs("src", {public=false})
 

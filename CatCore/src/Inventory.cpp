@@ -41,7 +41,7 @@ namespace CatCore
 			CatCore::ServerUtils::writeToBuffer(buffer, offset, &slot.second.count, sizeof(slot.second.count));
 		}
 	}
-	void Inventory::DeSerialize(const char* buffer, unsigned int& offset)
+	void Inventory::DeSerialize(const char* buffer, unsigned int& offset, std::map<std::string, bool>& texturesToLoadOrRemove)
 	{
 		uint8_t slotDataSize;
 		CatCore::ServerUtils::readFromBuffer(buffer, offset, &slotDataSize, sizeof(slotDataSize));
@@ -56,9 +56,46 @@ namespace CatCore
 			CatCore::ServerUtils::readFromBuffer(buffer, offset, &slotY, sizeof(slotY));
 
 			slot.item.DeSerialize(buffer, offset);
+			if (auto& texture = textures[{slotX, slotY}]; texture != slot.item.GetTexture())
+			{
+				if (!texture.empty()) texturesToLoadOrRemove[texture] = true;
+				texture = slot.item.GetTexture();
+				texturesToLoadOrRemove[texture] = false;
+			}
+
 			CatCore::ServerUtils::readFromBuffer(buffer, offset, &slot.count, sizeof(slot.count));
 
 			slotInfo[{slotX,slotY}] = slot;
+		}
+	}
+
+	void Inventory::ToJson(nlohmann::json& json)
+	{
+		struct slotData { uint8_t x, y; Slot slot; };
+		std::vector<slotData> data; data.resize(slotInfo.size());
+		for (auto slot : slotInfo)
+			data.push_back({ slot.first.first, slot.first.second, slot.second });
+
+		for (size_t i = 0; i < data.size(); i++)
+		{
+			json[i]["slot"]["x"] = data[i].x;
+			json[i]["slot"]["y"] = data[i].y;
+			json[i]["slot"]["count"] = data[i].slot.count;
+			data[i].slot.item.ToJson(json[i]["slot"]["item"]);
+		}
+	}
+
+	void Inventory::FromJson(const nlohmann::json& json)
+	{
+		for (size_t i = 0; i < json.size(); i++)
+		{
+			uint8_t x, y, count;
+			Item item;
+
+			x = json[i]["slot"]["x"];
+			y = json[i]["slot"]["y"];
+			count = json[i]["slot"]["count"];
+			item.FromJson(json[i]["slot"]["item"]);
 		}
 	}
 }

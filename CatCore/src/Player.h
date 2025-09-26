@@ -2,18 +2,21 @@
 
 #include <iostream>
 #include <unordered_map>
+#include <nlohmann/json.hpp>
+
 #include "CatMath.h"
 #include "ServerUtils.h"
 #include "Inventory.h"
+
 
 namespace CatCore
 {
 	class Player
 	{
 	public:
-		Player();
-		Player(std::string name);
-		~Player();
+		Player(){}
+		Player(std::string name) : name(name){}
+		~Player(){}
 
 		void SetPosition(Vector3 position) { this->position = position; changed = true; }
 		const Vector3& GetPosition() { return position; }
@@ -37,6 +40,9 @@ namespace CatCore
 		const Mouse& GetMouse() { return mouse; }
 
 		Inventory& GetInventory() { return inventory; }
+
+		void ToJson(nlohmann::json& json);
+		void FromJson(const nlohmann::json& json);
 	private:
 		Inventory inventory;
 

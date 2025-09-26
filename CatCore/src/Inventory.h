@@ -1,5 +1,8 @@
 #pragma once
 #include <map>
+#include <vector>
+#include <nlohmann/json.hpp>
+
 #include "Item.h"
 
 namespace CatCore
@@ -30,10 +33,15 @@ namespace CatCore
 		bool GetChanged() { return changed; }
 
 		void serialize(char* buffer, unsigned int& offset);
-		void DeSerialize(const char* buffer, unsigned int& offset);
+		// texturesToLoadOrRemove returns all textures to load(false) or to remove(true);
+		void DeSerialize(const char* buffer, unsigned int& offset, std::map<std::string, bool>& texturesToLoadOrRemove);
+
+		void ToJson(nlohmann::json& json);
+		void FromJson(const nlohmann::json& json);
 
 	private:
 		std::map<std::pair<uint8_t, uint8_t>, Slot> slotInfo;
+		std::map<std::pair<uint8_t, uint8_t>, std::string> textures;
 		uint8_t width;
 		uint8_t height;
 

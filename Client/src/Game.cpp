@@ -42,7 +42,7 @@ void Game::Update()
     for (auto sprite : Client::sprites)
         if (!sprite.second.GetRenderBeforePlayer()) DrawTextureEx(*LoadedTextures::GetTex(sprite.second.GetTexture()), { sprite.second.GetPosition().x, sprite.second.GetPosition().y }, sprite.second.GetRotation(), sprite.second.GetSize(), WHITE);
 
-    
+
     Client::ClearChangedInputs();
     Client::SetKey('A'); Client::SetKey('D');
     Client::SetKey('W'); Client::SetKey('S');

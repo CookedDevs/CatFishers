@@ -51,6 +51,9 @@ namespace CatCore
 		static void readFromBuffer(const char* buffer, unsigned int& offset, void* data, size_t size);
 		static void readTextFromBuffer(const char* buffer, unsigned int& offset, char*& data);
 		static void deserializeVector3(const char* buffer, unsigned int& offset, Vector3& vector);
+		static void SendPlayerUUID(ENetPeer* peer, std::string UUID);
+
+		static std::string GetUUID();
 	private:
 	};
 }

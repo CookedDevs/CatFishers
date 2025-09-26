@@ -1,6 +1,5 @@
 #include "ResourceManager.h"
 
-
 Texture2D* LoadedTextures::LoadTex(std::string texture)
 {
 	if (loadedTextures.find(texture) == loadedTextures.end())

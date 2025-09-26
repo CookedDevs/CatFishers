@@ -25,8 +25,18 @@ public:
 	static void SendScene(ENetPeer* peer);
 	static void BroadcastExludeMessage(ENetPeer* excludedReseiver, const std::string message, CatCore::ServerReceiveType type);
 
+	static std::string GetPeerUUID(ENetPeer* peer)
+	{
+		if (peerUUIDs.find(peer) != peerUUIDs.end())
+			return peerUUIDs[peer];
+		else
+			return "";
+	}
+
+	static void SetPeerUUID(ENetPeer* peer, std::string UUID){peerUUIDs[peer] = UUID;}
+
 	static std::unordered_map<ENetPeer*, CatCore::Player>& GetPlayers() { return players; }
-	static const void AddPlayer(CatCore::Player player, ENetPeer* peer) 
+	static const void AddPlayer(CatCore::Player player, ENetPeer* peer)
 	{ 
 		players[peer] = player;
 		playersToAddOrRemove[peer] = false;
@@ -34,7 +44,7 @@ public:
 		SendScene(peer);
 	}
 	static const void RemovePlayer(ENetPeer* peer) { playersToAddOrRemove[peer] = true; runplayersToAddOrRemove = true; }
-	static CatCore::Player* GetPlayer(ENetPeer* peer) 
+	static CatCore::Player* GetPlayer(ENetPeer* peer)
 	{
 		if (players.find(peer) != players.end())
 			return &players[peer];
@@ -54,6 +64,7 @@ public:
 	}
 
 private:
+	static inline std::unordered_map<ENetPeer*, std::string> peerUUIDs;
 	static inline ENetAddress address;
 	static inline ENetHost* serverHost;
 	static inline ENetEvent event;
