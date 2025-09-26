@@ -8,9 +8,6 @@ static Vector2 mousePoint = { 0.0f, 0.0f };
 
 static std::vector<Itemslot> itemslots;
 
-CatCore::Player& player = Client::players[ClientConfig::GetName()];
-CatCore::Inventory* inv = nullptr;
-
 void Game::UnInit()
 {
     for (auto b : itemslots) UnloadTexture(b.texture);
@@ -35,21 +32,16 @@ static Itemslot CreateItemSlot(Texture2D tex, Vector2 pos, float scale, bool ena
 static void DrawItemSlot(const Itemslot& slot, int index) {
     DrawTexturePro(slot.texture, slot.sourceRec, slot.bounds, Vector2{ 0, 0 }, 0.0f, WHITE);
 
-    CatCore::Inventory* invCheck = &player.GetInventory();
+    CatCore::Player& player = Client::players[ClientConfig::GetName()];
 
-    if (inv != invCheck)
-    {
-        CatCore::Inventory* inv = invCheck;
-        auto& item = player.GetInventory().GetSlot(index + 1, 0).item;
-        if (item.GetTexture() != "notexture") {
-            Texture2D* texPtr = LoadedTextures::GetTex(item.GetTexture());
-            std::cout << item.GetTexture() + "/n";
-            if (texPtr)
-            {
-                Rectangle src = { 0, 0, (float)texPtr->width, (float)texPtr->height};
-                Rectangle dst = slot.bounds;
-                DrawTexturePro(*texPtr, src, dst, Vector2{ 0, 0 }, 0.0f, WHITE);
-            }
+    CatCore::Item item = player.GetInventory().GetSlot(index, 0).item;
+    if (item.GetTexture() != "notexture") {
+        Texture2D* texPtr = LoadedTextures::LoadTex(item.GetTexture());
+        if (texPtr)
+        {
+           Rectangle src = { 0, 0, (float)texPtr->width, (float)texPtr->height};
+           Rectangle dst = slot.bounds;
+           DrawTexturePro(*texPtr, src, dst, Vector2{0, 0}, 0.0f, WHITE);
         }
     }
 }
@@ -58,6 +50,7 @@ static void DrawItemSlot(const Itemslot& slot, int index) {
 std::string Game::GetName() { return "Game"; }
 void Game::Init()
 {
+    CatCore::Player& player = Client::players[ClientConfig::GetName()];
     camera.target = Vector2{ 0.0f, 0.0f };
 
     Client::onDisconnected = [this](const std::string& reason) 
@@ -79,7 +72,6 @@ void Game::Init()
     for (int i = 0; i < itemslots.size(); i++) {
         Vector2 pos = { startPos.x + i * spacing, startPos.y };
         itemslots[i] = CreateItemSlot(*tex, pos, scale, true);
-        LoadedTextures::LoadTex(player.GetInventory().GetSlot(i, 0).item.GetTexture());
     }
 
 }

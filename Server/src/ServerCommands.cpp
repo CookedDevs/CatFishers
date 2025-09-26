@@ -63,6 +63,10 @@ void ServerCommands::InitializeCommands() // TODO: permissions
 	test.runCommand = [](ENetPeer* sender, std::vector<std::string> args) -> bool
 	{
 			Server::BroadcastMessage("Hello World");
+			CatCore::Player* player = Server::GetPlayer(sender);
+			CatCore::Inventory& inv = player->GetInventory();
+			inv.AddItem(0, 0, CatCore::Fish::GetRandomFish());
+			Server::BroadcastMessage(player->GetInventory().GetSlot(0, 0).item.GetName());
 			return true;
 	};
 	commands.push_back(test);
@@ -78,8 +82,9 @@ void ServerCommands::InitializeCommands() // TODO: permissions
 		Server::AddPlayer(CatCore::Player(args[1]), sender);
 		CatCore::ServerUtils::SendMessage(sender, "Name set to : " + args[1] + "\n");
 		CatCore::Player* player = Server::GetPlayer(sender);
-		CatCore::Inventory inv = player->GetInventory();
-		inv.AddItem(1, 0, CatCore::Fish::GetRandomFish());
+		CatCore::Inventory& inv = player->GetInventory();
+		inv.AddItem(0, 0, CatCore::Fish::GetRandomFish());
+		Server::BroadcastMessage(player->GetInventory().GetSlot(0, 0).item.GetName());
 		return true;
 	}; 
 	commands.push_back(name);
