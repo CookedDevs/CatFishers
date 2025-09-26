@@ -10,6 +10,16 @@ target("Client")
         set_kind("binary")
     end
 
+    if is_mode("debug") then
+        set_symbols("debug")    -- enables debug symbols/pdb generation for supported toolchains
+    end
+
+    -- MSVC: ensure compiler / linker flags
+    if is_mode("debug") and is_plat("windows") then
+        add_cxflags("/Zi", {force = true})            -- generate debug info
+        add_ldflags("/DEBUG", {force = true})         -- enable generating .pdb in linker
+    end
+
     -- Recursively add all source files in Client/src
     add_files("src/**.cpp")
     add_headerfiles("src/**.h")  -- Tracks headers in IDEs

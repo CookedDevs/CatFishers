@@ -1,6 +1,7 @@
 #pragma once
 #include <nlohmann/json.hpp>
 #include <fstream>
+#include "Player.h"
 
 class ServerConfig
 {
@@ -16,7 +17,15 @@ public:
 
 	static void SetIsIPv6(bool ipv6) { ServerConfig::ipv6 = ipv6; }
 	static bool GetIsIPv6() { return ipv6; }
+
+	static void AddUUID(std::string UUID, std::string playerName);
+	static bool CheckUUID(std::string UUID);
+
+	static CatCore::Player* GetPlayerData(std::string UUID);
+	static void SetPlayerData(std::string UUID, CatCore::Player player);
+
 private:
+	static inline std::unordered_map<std::string, CatCore::Player> UUIDs;
 	static inline nlohmann::json data;
 	static inline std::string ip = "localhost";
 	static inline unsigned int port = 22556;

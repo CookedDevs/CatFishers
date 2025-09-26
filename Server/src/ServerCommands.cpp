@@ -1,5 +1,6 @@
 #include "ServerCommands.h"
 #include "Server.h"
+#include "ServerConfig.h"
 #include "Fish.h"
 
 #include <sstream>
@@ -79,7 +80,19 @@ void ServerCommands::InitializeCommands() // TODO: permissions
 	name.permission = CatCore::PermissionLevels::NonNamed;
 	name.runCommand = [](ENetPeer* sender, std::vector<std::string> args) -> bool
 	{
-		Server::AddPlayer(CatCore::Player(args[1]), sender);
+		std::string UUID = Server::GetPeerUUID(sender);
+		if (!ServerConfig::CheckUUID(UUID))
+		{
+			std::string newUUID = CatCore::ServerUtils::GetUUID();
+			CatCore::ServerUtils::SendPlayerUUID(sender, newUUID);
+			Server::SetPeerUUID(sender, newUUID);
+			UUID = newUUID;
+			ServerConfig::AddUUID(newUUID, args[1]);
+			ServerConfig::Save();
+		}
+
+		Server::AddPlayer(*ServerConfig::GetPlayerData(UUID), sender);
+
 		CatCore::ServerUtils::SendMessage(sender, "Name set to : " + args[1] + "\n");
 		CatCore::Player* player = Server::GetPlayer(sender);
 		CatCore::Inventory& inv = player->GetInventory();

@@ -39,6 +39,7 @@ namespace CatCore
 		Function = 6,
 		SpriteAddOrRemove = 7,
 		SpriteData = 8,
-		SceneData = 9
+		SceneData = 9,
+		PeerUUID = 10
 	};
 }

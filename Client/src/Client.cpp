@@ -3,6 +3,7 @@
 #include "Player.h"
 #include "ClientCommands.h"
 #include "Game.h"
+#include "ClientConfig.h"
 
 std::function<void()> Client::onConnected = nullptr;
 std::function<void(const std::string&)> Client::onDisconnected = nullptr;
@@ -63,6 +64,7 @@ bool Client::Run()
         {
         case ENET_EVENT_TYPE_CONNECT:
             std::cout << "\nConnected to server!" << addressBuffer << "\n\n";
+            CatCore::ServerUtils::SendPlayerUUID(serverPeer, ClientConfig::GetUUID());
             Client::onConnected();
             break;
 
@@ -110,7 +112,15 @@ bool Client::Run()
                         player.SetName(name);
                         player.SetTexture(texture);
                         player.SetPosition(position);
-                        player.GetInventory().DeSerialize(buffer, offset);
+
+                        std::map<std::string, bool> texturesToLoadOrRemove;
+                        player.GetInventory().DeSerialize(buffer, offset, texturesToLoadOrRemove);
+                        for (auto texture : texturesToLoadOrRemove)
+                        {
+                            if (texture.second) LoadedTextures::UnLoadTex(texture.first);
+                            else LoadedTextures::LoadTex(texture.first);
+                        }
+
                         LoadedTextures::LoadTex(player.GetTexture());
                         players[player.GetName()] = player;
                     }
@@ -138,7 +148,15 @@ bool Client::Run()
 
                     CatCore::ServerUtils::readFromBuffer(buffer, offset, &inventory, sizeof(inventory));
                     if (inventory)
-                        players[name].GetInventory().DeSerialize(buffer, offset);
+                    {
+                        std::map<std::string, bool> texturesToLoadOrRemove;
+                        players[name].GetInventory().DeSerialize(buffer, offset, texturesToLoadOrRemove);
+                        for (auto texture : texturesToLoadOrRemove)
+                        {
+                            if (texture.second) LoadedTextures::UnLoadTex(texture.first);
+                            else LoadedTextures::LoadTex(texture.first);
+                        }
+                    }
 
                     players[name].SetPosition(position);
                     if (players[name].GetTexture() != texture)
@@ -249,7 +267,14 @@ bool Client::Run()
                     CatCore::ServerUtils::readTextFromBuffer(buffer, offset, plrname);
                     CatCore::ServerUtils::readTextFromBuffer(buffer, offset, plrtexture);
                     CatCore::ServerUtils::deserializeVector3(buffer, offset, plrposition);
-                    players[plrname].GetInventory().DeSerialize(buffer, offset);
+                    
+                    std::map<std::string, bool> texturesToLoadOrRemove;
+                    players[plrname].GetInventory().DeSerialize(buffer, offset, texturesToLoadOrRemove);
+                    for (auto texture : texturesToLoadOrRemove)
+                    {
+                        if (texture.second) LoadedTextures::UnLoadTex(texture.first);
+                        else LoadedTextures::LoadTex(texture.first);
+                    }
 
                     players[plrname].SetPosition(plrposition);
                     if (players[plrname].GetTexture() != plrtexture)
@@ -288,6 +313,16 @@ bool Client::Run()
                         LoadedTextures::LoadTex(sprites[name].GetTexture());
                     }
                 }
+            }
+            else if (event.packet && event.packet->data[0] == CatCore::ServerReceiveType::PeerUUID)
+            {
+                char* buffer = (char*)event.packet->data;
+                unsigned int offset = sizeof(uint8_t);
+
+                char* UUID;
+                CatCore::ServerUtils::readTextFromBuffer(buffer, offset, UUID);
+                ClientConfig::SetUUID(UUID);
+                ClientConfig::Save();
             }
 
             break;

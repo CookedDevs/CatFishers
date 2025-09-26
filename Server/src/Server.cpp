@@ -4,6 +4,7 @@
 
 #include <chrono>
 #include <thread>
+#include <algorithm>
 
 #include <nlohmann/json.hpp>
 
@@ -57,6 +58,14 @@ void Server::Init()
 
 void Server::Close()
 {
+    for (auto player : players)
+    {
+        std::string UUID = GetPeerUUID(player.first);
+        if (!ServerConfig::CheckUUID(UUID)) continue;
+
+        ServerConfig::SetPlayerData(GetPeerUUID(player.first), *GetPlayer(player.first));
+        ServerConfig::Save();
+    }
     enet_host_destroy(serverHost);
 }
 
@@ -157,6 +166,16 @@ bool Server::Run()
                 }
                 enet_packet_destroy(event.packet);
             }
+            else if (event.packet->data[0] == CatCore::ServerReceiveType::PeerUUID)
+            {
+                char* buffer = (char*)event.packet->data;
+                unsigned int offset = sizeof(uint8_t);
+
+                char* text;
+                CatCore::ServerUtils::readTextFromBuffer(buffer, offset, text);
+                
+                peerUUIDs[event.peer] = text;
+            }
             break;
         }
         case ENET_EVENT_TYPE_DISCONNECT:
@@ -169,6 +188,8 @@ bool Server::Run()
                     << ((event.type == ENET_EVENT_TYPE_DISCONNECT_TIMEOUT) ? " (timeout)" : "") 
                     << "\n";
 
+            ServerConfig::SetPlayerData(GetPeerUUID(event.peer), *GetPlayer(event.peer));
+            ServerConfig::Save();
             RemovePlayer(event.peer);
             break;
         }
@@ -197,7 +218,6 @@ bool Server::Run()
     enet_host_flush(serverHost);
     return true;
 }
-
 
 void Server::SendPlayerAddOrRemove()
 {

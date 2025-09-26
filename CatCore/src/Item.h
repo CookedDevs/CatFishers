@@ -1,9 +1,18 @@
 #pragma once
 #include <string>
 #include <cstdint>
+#include <map>
+#include <nlohmann/json.hpp>
 
 namespace CatCore
 {
+	enum ItemType
+	{
+		Null,
+		Fish,
+		FihsingRod,
+	};
+
 	class Item
 	{
 	public:
@@ -32,11 +41,15 @@ namespace CatCore
 		void SetStackSize(uint8_t stackSize) { this->stackSize = stackSize; changed = true; }
 		const uint8_t& GetStackSize() { return stackSize; }
 
+		void ToJson(nlohmann::json& json);
+		void FromJson(const nlohmann::json& json);
+
 	private:
 		std::string name = "noname";
 		std::string description = "nodescription";
 		std::string texture = "notexture";
 		
+		ItemType itemType = Null;
 		uint32_t value = 0;
 		uint8_t stackSize = 32;
 		bool changed = false;

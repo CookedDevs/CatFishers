@@ -1,4 +1,5 @@
 #include "ServerUtils.h"
+#include <random>
 
 namespace CatCore
 {
@@ -86,6 +87,41 @@ namespace CatCore
 
         // Set the btVector3 from the read values
         vector = { x, y, z };
+    }
+
+    void ServerUtils::SendPlayerUUID(ENetPeer* peer, std::string UUID)
+    {
+        const size_t bufferSize = 255;
+        char buffer[bufferSize];
+        unsigned int offset = 0;
+
+        uint8_t messageType = CatCore::PeerUUID;
+        CatCore::ServerUtils::writeToBuffer(buffer, offset, &messageType, sizeof(messageType));
+
+        if (UUID.empty()) UUID = "EMPTY";
+        CatCore::ServerUtils::writeToBuffer(buffer, offset, UUID.c_str());
+
+        ENetPacket* packet = enet_packet_create(buffer, offset, ENET_PACKET_FLAG_RELIABLE);
+        enet_peer_send(peer, 1, packet);
+    }
+
+    std::string ServerUtils::GetUUID() {
+        static std::random_device dev;
+        static std::mt19937 rng(dev());
+
+        std::uniform_int_distribution<int> dist(0, 15);
+
+        const char* value = "0123456789abcdef";
+        const bool dash[] = { 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0 };
+
+        std::string UUID;
+        for (int i = 0; i < 16; i++) 
+        {
+            if (dash[i]) UUID += "-";
+            UUID += value[dist(rng)];
+            UUID += value[dist(rng)];
+        }
+        return UUID;
     }
 
 }
