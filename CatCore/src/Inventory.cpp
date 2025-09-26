@@ -71,8 +71,8 @@ namespace CatCore
 
 	void Inventory::ToJson(nlohmann::json& json)
 	{
-		struct slotData { uint8_t x, y; Slot slot; };
-		std::vector<slotData> data; data.resize(slotInfo.size());
+		struct slotData { uint8_t x = 0, y = 0; Slot slot; };
+		std::vector<slotData> data;
 		for (auto slot : slotInfo)
 			data.push_back({ slot.first.first, slot.first.second, slot.second });
 

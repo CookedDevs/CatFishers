@@ -51,7 +51,8 @@ void Client::Init()
 
 void Client::Close()
 {
-
+    players.clear();
+    sprites.clear();
 }
 
 bool Client::Run()

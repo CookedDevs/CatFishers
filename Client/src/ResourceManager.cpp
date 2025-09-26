@@ -47,7 +47,7 @@ void LoadedTextures::UnLoadAllTex()
 	if (loadedTextures.size() <= 0) return;
 	for (auto texture : loadedTextures)
 	{
-		UnloadTexture(texture.second.texture);
+		if (!texture.first.empty()) UnloadTexture(texture.second.texture);
 		loadedTextures.erase(texture.first);
 	}
 }

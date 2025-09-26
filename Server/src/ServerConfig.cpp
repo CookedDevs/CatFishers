@@ -34,6 +34,20 @@ void ServerConfig::Save()
     {
         file << data.dump(4);
         file.close();
+        std::cout << "Saved server!\n";
+    }
+}
+
+void ServerConfig::SavePlayer(std::string UUID)
+{
+    std::ofstream file("config.json");
+    if (CheckUUID(UUID)) UUIDs[UUID].ToJson(data["UUIDs"][UUID]);
+
+    if (file.good() && file.is_open())
+    {
+        file << data.dump(4);
+        file.close();
+        std::cout << "Saved server!\n";
     }
 }
 

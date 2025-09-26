@@ -11,7 +11,6 @@ static std::vector<Itemslot> itemslots;
 void Game::UnInit()
 {
     for (auto b : itemslots) UnloadTexture(b.texture);
-    Client::players.clear();
     LoadedTextures::UnLoadAllTex();
 }
 
@@ -32,17 +31,16 @@ static Itemslot CreateItemSlot(Texture2D tex, Vector2 pos, float scale, bool ena
 static void DrawItemSlot(const Itemslot& slot, int index) {
     DrawTexturePro(slot.texture, slot.sourceRec, slot.bounds, Vector2{ 0, 0 }, 0.0f, WHITE);
 
-    CatCore::Player& player = Client::players[ClientConfig::GetName()];
+    CatCore::Player* player = Client::GetPlayer(ClientConfig::GetName());
+    if (!player) return;
 
-    CatCore::Item item = player.GetInventory().GetSlot(index, 0).item;
-    if (item.GetTexture() != "notexture") {
-        Texture2D* texPtr = LoadedTextures::LoadTex(item.GetTexture());
-        if (texPtr)
-        {
-           Rectangle src = { 0, 0, (float)texPtr->width, (float)texPtr->height};
-           Rectangle dst = slot.bounds;
-           DrawTexturePro(*texPtr, src, dst, Vector2{0, 0}, 0.0f, WHITE);
-        }
+    CatCore::Item item = player->GetInventory().GetSlot(index, 0).item;
+    Texture2D* texPtr = LoadedTextures::GetTex(item.GetTexture());
+    if (texPtr)
+    {
+       Rectangle src = { 0, 0, (float)texPtr->width, (float)texPtr->height};
+       Rectangle dst = slot.bounds;
+       DrawTexturePro(*texPtr, src, dst, Vector2{0, 0}, 0.0f, WHITE);
     }
 }
 
@@ -50,7 +48,6 @@ static void DrawItemSlot(const Itemslot& slot, int index) {
 std::string Game::GetName() { return "Game"; }
 void Game::Init()
 {
-    CatCore::Player& player = Client::players[ClientConfig::GetName()];
     camera.target = Vector2{ 0.0f, 0.0f };
 
     Client::onDisconnected = [this](const std::string& reason) 
@@ -102,13 +99,13 @@ void Game::Update()
     BeginMode2D(camera);
     EndMode2D();
 
-    for (auto sprite : Client::sprites)
+    for (auto sprite : Client::GetSprites())
         if (sprite.second.GetRenderBeforePlayer()) DrawTextureEx(*LoadedTextures::GetTex(sprite.second.GetTexture()), { sprite.second.GetPosition().x, sprite.second.GetPosition().y }, sprite.second.GetRotation(), sprite.second.GetSize(), WHITE);
 
-    for (auto player : Client::players)
+    for (auto player : Client::GetPlayers())
         DrawTextureEx(*LoadedTextures::GetTex(player.second.GetTexture()), { player.second.GetPosition().x, player.second.GetPosition().y}, 0, 0.1f, WHITE);
 
-    for (auto sprite : Client::sprites)
+    for (auto sprite : Client::GetSprites())
         if (!sprite.second.GetRenderBeforePlayer()) DrawTextureEx(*LoadedTextures::GetTex(sprite.second.GetTexture()), { sprite.second.GetPosition().x, sprite.second.GetPosition().y }, sprite.second.GetRotation(), sprite.second.GetSize(), WHITE);
 
     

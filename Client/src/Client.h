@@ -31,8 +31,16 @@ public:
 	static void SendFuncId(const uint16_t id);
 	static ENetPeer* GetPeer(){return serverPeer;}
 
-	static inline std::unordered_map<std::string, CatCore::Player> players;
-	static inline std::map<std::string, CatCore::Sprite> sprites;
+	static CatCore::Player* GetPlayer(std::string name)
+	{
+		if (players.find(name) != players.end())
+			return &players[name];
+		else
+			return nullptr;
+	}
+
+	static std::unordered_map<std::string, CatCore::Player>& GetPlayers() { return players; }
+	static std::map<std::string, CatCore::Sprite>& GetSprites() { return sprites; }
 
 	static std::function<void()> onConnected;
 	static std::function<void(const std::string&)> onDisconnected;
@@ -43,6 +51,9 @@ public:
 	static inline CatCore::Mouse mouse;
 
 private:
+	static inline std::unordered_map<std::string, CatCore::Player> players;
+	static inline std::map<std::string, CatCore::Sprite> sprites;
+
 	static inline std::unordered_map<char, bool> inputs;
 	static inline std::unordered_map<char, bool> changedInputs;
 

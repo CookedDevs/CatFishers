@@ -91,13 +91,16 @@ void ServerCommands::InitializeCommands() // TODO: permissions
 			ServerConfig::Save();
 		}
 
-		Server::AddPlayer(*ServerConfig::GetPlayerData(UUID), sender);
 
 		CatCore::ServerUtils::SendMessage(sender, "Name set to : " + args[1] + "\n");
-		CatCore::Player* player = Server::GetPlayer(sender);
+		CatCore::Player* player = ServerConfig::GetPlayerData(UUID);
+		player->SetName(args[1]);
+
 		CatCore::Inventory& inv = player->GetInventory();
 		inv.AddItem(0, 0, CatCore::Fish::GetRandomFish());
-		Server::BroadcastMessage(player->GetInventory().GetSlot(0, 0).item.GetName());
+		ServerConfig::Save();
+
+		Server::AddPlayer(*player, sender);
 		return true;
 	}; 
 	commands.push_back(name);

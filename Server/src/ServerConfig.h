@@ -23,6 +23,7 @@ public:
 
 	static CatCore::Player* GetPlayerData(std::string UUID);
 	static void SetPlayerData(std::string UUID, CatCore::Player player);
+	void SavePlayer(std::string UUID);
 
 private:
 	static inline std::unordered_map<std::string, CatCore::Player> UUIDs;
