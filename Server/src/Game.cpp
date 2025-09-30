@@ -1,6 +1,7 @@
 #include "Game.h"
 #include "Player.h"
 #include "Server.h"
+#include "Fish.h"
 #include <vector>
 #include <iostream>
 #include <cmath> 
@@ -109,17 +110,20 @@ void Game::ThrowBobber(ENetPeer* peer) {
     auto sprites = Server::GetSprites();
 }
 
-bool Game::ReelBobber(ENetPeer* peer) {
+bool Game::ReelBobber(ENetPeer* peer) 
+{
     auto it = bobbers.find(peer);
-    if (it == bobbers.end()) {
+    if (it == bobbers.end()) 
+    {
         std::cout << "No bobber found for peer\n";
         return false;
     }
 
-    if (std::chrono::steady_clock::now() >= it->second.biteTime) {
+    if (std::chrono::steady_clock::now() >= it->second.biteTime) 
+    {
+        Server::GetPlayer(peer)->GetInventory().AddItemToFree(CatCore::Fish::GetRandomFish());
         Server::RemoveSprite(it->second.spriteid);
         bobbers.erase(it); 
-        std::cout << "Fish caught!\n";
         return true;
     }
 

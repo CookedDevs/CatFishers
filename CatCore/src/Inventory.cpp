@@ -17,6 +17,30 @@ namespace CatCore
 		return true;
 	}
 
+	bool Inventory::AddItemToFree(Item item, uint8_t count)
+	{
+		for (size_t y = 0; y < height + 1; y++)
+		{
+			for (size_t x = 0; x < width; x++)
+			{
+				if (slotInfo[{x, y}].count == 0)
+				{
+					slotInfo[{x, y}] = { item, 1 };
+					changed = true;
+					return true;
+				}
+				else if (slotInfo[{x, y}].item.GetName() == item.GetName())
+				{
+					slotInfo[{x, y}].count++;
+					changed = true;
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
 	bool Inventory::RemoveItem(uint8_t slotX, uint8_t slotY, uint8_t count)
 	{
 		if (slotX > width || slotY > height) return false;

@@ -267,7 +267,7 @@ void Server::SendPlayers()
     std::vector<std::pair<CatCore::Player, bool>> playerDataToSend;
     for (auto& player : players)
     { 
-        if (player.second.GetChanged() == true && player.second.GetName() != "")
+        if (player.second.GetName() != "" && player.second.GetChanged())
         {
             playerDataToSend.push_back({player.second, player.second.GetInventory().GetChanged()});
             player.second.SetChanged(false);

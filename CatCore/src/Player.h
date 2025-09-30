@@ -34,7 +34,7 @@ namespace CatCore
 		bool IsKeyDown(char key) { return (GetInputInfo().find(key) != GetInputInfo().end() && GetInputInfo().at(key) == true); }
 
 		void SetChanged(bool changed) { this->changed = changed;}
-		bool GetChanged() { return changed; }
+		bool GetChanged() { return changed || inventory.GetChanged(); }
 
 		void SetMouse(Mouse mouse) { this->mouse = mouse; }
 		const Mouse& GetMouse() { return mouse; }

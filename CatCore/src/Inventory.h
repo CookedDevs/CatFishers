@@ -20,6 +20,7 @@ namespace CatCore
 		~Inventory();
 
 		bool AddItem(uint8_t slotX, uint8_t slotY, Item item, uint8_t count = 1);
+		bool AddItemToFree(Item item, uint8_t count = 1);
 		bool RemoveItem(uint8_t slotX, uint8_t slotY, uint8_t count = 1);
 
 		Slot& GetSlot(uint8_t slotX, uint8_t slotY) { return slotInfo[{slotX, slotY}]; changed = true; }

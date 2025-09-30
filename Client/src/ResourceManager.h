@@ -1,6 +1,6 @@
 #pragma once
 #include <raylib.h>
-#include <unordered_map>
+#include <map>
 #include <iostream>
 
 class LoadedTextures
@@ -17,5 +17,5 @@ private:
 		unsigned int uses;
 	};
 
-	static inline std::unordered_map <std::string, loadTexture> loadedTextures;
+	static inline std::map<std::string, loadTexture> loadedTextures;
 };

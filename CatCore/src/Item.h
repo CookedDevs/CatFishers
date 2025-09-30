@@ -24,22 +24,22 @@ namespace CatCore
 		void DeSerialize(const char* buffer, unsigned int& offset);
 
 		void SetName(std::string name) { this->name = name; changed = true; }
-		std::string GetName() { return name; }
+		const std::string GetName() { return name; }
 
 		void SetDescription(std::string description) { this->description = description; changed = true; }
-		std::string GetDescription() { return description; }
+		const std::string GetDescription() { return description; }
 
 		void SetTexture(std::string texture) { this->texture = texture; changed = true; }
-		std::string GetTexture() { return texture; }
+		const std::string GetTexture() { return texture; }
 
 		void SetChanged(bool changed) { this->changed = changed; }
-		bool GetChanged() { return changed; }
+		const bool GetChanged() { return changed; }
 
 		void SetValue(uint8_t value) { this->value = value; changed = true; }
-		const uint8_t& GetValue() { return value; }
+		const uint8_t GetValue() { return value; }
 
 		void SetStackSize(uint8_t stackSize) { this->stackSize = stackSize; changed = true; }
-		const uint8_t& GetStackSize() { return stackSize; }
+		const uint8_t GetStackSize() { return stackSize; }
 
 		void ToJson(nlohmann::json& json);
 		void FromJson(const nlohmann::json& json);

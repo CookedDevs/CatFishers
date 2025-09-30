@@ -3,6 +3,7 @@
 #include "Client.h"
 #include "ClientConfig.h"
 #include "AndroidInput.h"
+#include "CatLog.h"
 
 static Vector2 mousePoint = { 0.0f, 0.0f };
 
@@ -10,7 +11,6 @@ static std::vector<Itemslot> itemslots;
 
 void Game::UnInit()
 {
-    for (auto b : itemslots) UnloadTexture(b.texture);
     LoadedTextures::UnLoadAllTex();
 }
 
@@ -32,15 +32,15 @@ static void DrawItemSlot(const Itemslot& slot, int index) {
     DrawTexturePro(slot.texture, slot.sourceRec, slot.bounds, Vector2{ 0, 0 }, 0.0f, WHITE);
 
     CatCore::Player* player = Client::GetPlayer(ClientConfig::GetName());
-    if (!player) return;
+    if (player == nullptr) return; 
 
     CatCore::Item item = player->GetInventory().GetSlot(index, 0).item;
     Texture2D* texPtr = LoadedTextures::GetTex(item.GetTexture());
     if (texPtr)
     {
-       Rectangle src = { 0, 0, (float)texPtr->width, (float)texPtr->height};
-       Rectangle dst = slot.bounds;
-       DrawTexturePro(*texPtr, src, dst, Vector2{0, 0}, 0.0f, WHITE);
+        Rectangle src = { 0, 0, (float)texPtr->width, (float)texPtr->height};
+        Rectangle dst = slot.bounds;
+        DrawTexturePro(*texPtr, src, dst, Vector2{0, 0}, 0.0f, WHITE);
     }
 }
 

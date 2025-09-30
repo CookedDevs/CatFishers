@@ -4,6 +4,7 @@
 #include "ClientCommands.h"
 #include "Game.h"
 #include "ClientConfig.h"
+#include "CatLog.h"
 
 std::function<void()> Client::onConnected = nullptr;
 std::function<void(const std::string&)> Client::onDisconnected = nullptr;
@@ -16,7 +17,7 @@ void Client::Init()
     /* Initialize enet6 */
     if (enet_initialize() != 0)
     {
-        std::cerr << "An error occured while initializing ENet6!\n";
+        CatCore::LogError("An error occured while initializing ENet6!\n");
         exit(EXIT_FAILURE);
     }
 
@@ -27,14 +28,14 @@ void Client::Init()
     address.port = 22556;
 
     enet_address_get_host_ip(&address, addressBuffer, ENET_ADDRESS_MAX_LENGTH);
-    std::cout << "Connecting to " << addressBuffer << "\n";
-
+    std::string logTxt = "Connecting to : "; logTxt += addressBuffer; logTxt += "\n";
+    CatCore::LogInfo(logTxt);
     /* Create a non-listening host using enet_host_create */
     /* Note we create a host using the same address family we resolved earlier */
     clientHost = enet_host_create(address.type, NULL, 1, 0, 0, 0);
     if (clientHost == NULL)
     {
-        std::cerr << "An error occured while trying to create an ENet6 server host\n";
+        CatCore::LogError("An error occured while trying to create an ENet6 server host\n");
         exit(EXIT_FAILURE);
     }
     enet_host_bandwidth_throttle(clientHost);
@@ -43,7 +44,7 @@ void Client::Init()
     serverPeer = enet_host_connect(clientHost, &address, 2, 0);
     if (serverPeer == NULL)
     {
-        std::cerr << "No available peers for initializing an ENet connection";
+        CatCore::LogError("No available peers for initializing an ENet connection\n");
         exit(EXIT_FAILURE);
     }
 
@@ -64,7 +65,7 @@ bool Client::Run()
         switch (event.type)
         {
         case ENET_EVENT_TYPE_CONNECT:
-            std::cout << "\nConnected to server!" << addressBuffer << "\n\n";
+            CatCore::LogInfo(std::string("\nConnecting to server: ") + addressBuffer + "\n\n");
             CatCore::ServerUtils::SendPlayerUUID(serverPeer, ClientConfig::GetUUID());
             Client::onConnected();
             break;
@@ -92,8 +93,8 @@ bool Client::Run()
                 for (size_t i = 0; i < playerCount; i++)
                 {
                     bool addOrRemove;
-                    char* name = "";
-                    char* texture = "";
+                    char* name;
+                    char* texture;
                     CatCore::Vector3 position;
 
                     CatCore::ServerUtils::readFromBuffer(buffer, offset, &addOrRemove, sizeof(bool));
@@ -118,8 +119,11 @@ bool Client::Run()
                         player.GetInventory().DeSerialize(buffer, offset, texturesToLoadOrRemove);
                         for (auto texture : texturesToLoadOrRemove)
                         {
-                            if (texture.second) LoadedTextures::UnLoadTex(texture.first);
-                            else LoadedTextures::LoadTex(texture.first);
+                            if (texture.second) 
+                            { 
+                                LoadedTextures::UnLoadTex(texture.first); 
+                            }
+                            else { LoadedTextures::LoadTex(texture.first); CatCore::LogInfo(std::string("Loaded texture: ") + texture.first + "\n");}
                         }
 
                         LoadedTextures::LoadTex(player.GetTexture());
@@ -179,8 +183,8 @@ bool Client::Run()
                 for (size_t i = 0; i < spriteCount; i++)
                 {
                     bool addOrRemove;
-                    char* name = "";
-                    char* texture = "";
+                    char* name;
+                    char* texture;
                     CatCore::Vector3 position;
                     float rotation;
                     float size;
@@ -225,8 +229,8 @@ bool Client::Run()
 
                 for (size_t i = 0; i < spriteCount; i++)
                 {
-                    char* name = "";
-                    char* texturePath = "";
+                    char* name;
+                    char* texturePath;
                     CatCore::Vector3 position;
                     float rotation;
                     float size;
@@ -291,8 +295,8 @@ bool Client::Run()
 
                 for (size_t i = 0; i < spriteCount; i++)
                 {
-                    char* name = "";
-                    char* texturePath = "";
+                    char* name;
+                    char* texturePath;
                     CatCore::Vector3 position;
                     float rotation;
                     float size;

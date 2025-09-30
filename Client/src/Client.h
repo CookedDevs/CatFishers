@@ -16,7 +16,7 @@
 #include "ServerUtils.h"
 #include "Sprite.h"
 #include "Player.h"
-
+#include "CatLog.h"
 
 class Client
 {
@@ -34,9 +34,11 @@ public:
 	static CatCore::Player* GetPlayer(std::string name)
 	{
 		if (players.find(name) != players.end())
+		{
+			CatCore::LogInfo(std::string("player found : ") + name + "\n");
 			return &players[name];
-		else
-			return nullptr;
+		}
+		return nullptr;
 	}
 
 	static std::unordered_map<std::string, CatCore::Player>& GetPlayers() { return players; }
