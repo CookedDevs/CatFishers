@@ -9,7 +9,6 @@ std::string path = "config.json";
 std::string path = "Resources/config.json";
 #endif
 
-
 void ClientConfig::Init()
 {
     char* text = LoadFileText(path.c_str());
@@ -17,9 +16,17 @@ void ClientConfig::Init()
     {
         CatCore::LogInfo(std::string("loaded: \n") + text);
         data = nlohmann::json::parse(text);
-        name = data["name"].get<std::string>();
-        ip = data["ip"].get<std::string>();
-        UUID = data["UUID"].get<std::string>();
+        name = data["name"];
+        ip = data["ip"];
+        UUID = data["UUID"];
+
+        std::string test = name;
+
+        CatCore::LogInfo("name = " + name + "  :  " + std::to_string(name.size()));
+        CatCore::LogInfo("size = " + std::to_string(name.size()));
+        CatCore::LogInfo("name = " + test + "  :  " + std::to_string(test.size()));
+        CatCore::LogInfo("size = " + std::to_string(test.size()));
+
         UnloadFileText(text);
         return;
     }
@@ -33,7 +40,7 @@ void ClientConfig::Save()
     data["ip"] = ip;
     data["UUID"] = UUID;
 
-    bool ok = SaveFileText(path.c_str(), data.dump(4).c_str());
+    bool ok = SaveFileText(path.c_str(), data.dump().c_str());
     if (ok) CatCore::LogInfo("Saved");
     else CatCore::LogError("Not saved");
 }

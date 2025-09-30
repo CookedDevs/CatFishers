@@ -19,10 +19,13 @@ void AndroidInput::HideSoftKeyboard()
 #endif // _ANDROID_
 }
 
-void AndroidInput::GetSoftKeyboardInput(std::string& input, unsigned int size)
+void AndroidInput::GetSoftKeyboardInput(std::string& input)
 {
 #ifdef _ANDROID_
-	SoftKeyboardEditText(input.data(), input.size() + 1);
+    std::vector<char> buffer(input.begin(), input.end());
+    buffer.push_back('\0');
+    SoftKeyboardEditText(buffer.data(), buffer.size());
+    input = buffer.data();
 #endif // _ANDROID_
 }
 

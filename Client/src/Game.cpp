@@ -123,12 +123,14 @@ void Game::Update()
         Client::mouse.x = mousepoint.x;
         Client::mouse.y = mousepoint.y;
         Client::mouse.input = CatCore::LeftMouse;
-        if (!hasBobber) {
+        if (!hasBobber) 
+        {
             Client::SendInputData();
             Client::SendFuncId(1);
             hasBobber = true;
         }
-        else {
+        else 
+        {
             Client::SendFuncId(2);
             hasBobber = false;
         }
