@@ -45,28 +45,28 @@ jobs:
       run: sudo apt-get update && sudo apt-get install -y libasound2-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev libwayland-dev libxkbcommon-dev
 
     - name: Configure xmake (Windows)
-      if: runner.os == 'windows-latest'
+      if: runner.os == 'Windows'
       run: |
         # call xmake.exe from repo root
         ${{ github.workspace }}\\xmake.exe f -m release -y
 
     - name: Build (Linux)
-      if: runner.os == 'ubuntu-latest'
+      if: runner.os == 'Linux'
       run: |
         "${{ github.workspace }}/xmake.x86_64" -v -y
 
     - name: Build (Windows)
-      if: runner.os == 'windows-latest'
+      if: runner.os == 'Windows'
       run: |
         ${{ github.workspace }}\\xmake.exe -v -y
 
     - name: Test (Linux)
-      if: runner.os == 'ubuntu-latest'
+      if: runner.os == 'Linux'
       run: |
         "${{ github.workspace }}/xmake.x86_64" test
 
     - name: Test (Windows)
-      if: runner.os == 'windows-latest'
+      if: runner.os == 'Windows'
       run: |
         ${{ github.workspace }}\\xmake.exe test
 
