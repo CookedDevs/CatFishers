@@ -10,6 +10,7 @@ CatFishers is a multiplayer cat fishing game
 - raymob
 - [commandline](https://github.com/lionkor/commandline)
 - enet6
+- nlogmann/json
 
 # Building
 this project is build using `xmake`
