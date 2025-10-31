@@ -17,24 +17,24 @@ jobs:
         build_type: [Release]
         c_compiler: [gcc, clang, cl]
         include:
-          - os: windows
+          - os: windows-latest
             c_compiler: cl
             cpp_compiler: cl
             label: windows c1
-          - os: linux
+          - os: ubuntu-latest
             c_compiler: gcc
             cpp_compiler: g++
             label: ubuntu g++
-          - os: linux
+          - os: ubuntu-latest
             c_compiler: clang
             cpp_compiler: clang++
             label: ubuntu clang
         exclude:
-          - os: windows
+          - os: windows-latest
             c_compiler: gcc
-          - os: windows
+          - os: windows-latest
             c_compiler: clang
-          - os: linux
+          - os: ubuntu-latest
             c_compiler: cl
 
     steps:
@@ -71,7 +71,7 @@ jobs:
         ${{ github.workspace }}\\xmake.exe test
 
   Android-build:
-    runs-on: [self-hosted, Linux]
+    runs-on: [ubuntu-latest]
     strategy:
       fail-fast: false
       matrix:
