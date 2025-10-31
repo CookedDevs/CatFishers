@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [Linux, Windows]
+        os: [ubuntu-latest, windows-latest]
         build_type: [Release]
         c_compiler: [gcc, clang, cl]
         include:
@@ -41,32 +41,32 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Install Ubuntu Dependencies
-      if: runner.os == 'Linux'
+      if: runner.os == 'ubuntu-latest'
       run: sudo apt-get update && sudo apt-get install -y libasound2-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev libwayland-dev libxkbcommon-dev
 
     - name: Configure xmake (Windows)
-      if: runner.os == 'Windows'
+      if: runner.os == 'windows-latest'
       run: |
         # call xmake.exe from repo root
         ${{ github.workspace }}\\xmake.exe f -m release -y
 
     - name: Build (Linux)
-      if: runner.os == 'Linux'
+      if: runner.os == 'ubuntu-latest'
       run: |
         "${{ github.workspace }}/xmake.x86_64" -v -y
 
     - name: Build (Windows)
-      if: runner.os == 'Windows'
+      if: runner.os == 'windows-latest'
       run: |
         ${{ github.workspace }}\\xmake.exe -v -y
 
     - name: Test (Linux)
-      if: runner.os == 'Linux'
+      if: runner.os == 'ubuntu-latest'
       run: |
         "${{ github.workspace }}/xmake.x86_64" test
 
     - name: Test (Windows)
-      if: runner.os == 'Windows'
+      if: runner.os == 'windows-latest'
       run: |
         ${{ github.workspace }}\\xmake.exe test
 
